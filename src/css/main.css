@@ -1,0 +1,45 @@
+@import url("./parts/header.css");
+@import url("./parts/why-choose.css");
+
+body{
+    margin: 0 !important;
+    background: #171717;
+	font-family: "Nunito", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "Work Sans", sans-serif;
+}
+
+body.plumber-loading {
+	overflow: hidden;
+}
+
+.plumber-preloader {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #ffffff;
+	opacity: 1;
+	visibility: visible;
+	transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.plumber-preloader.is-hidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.plumber-preloader__animation {
+	width: min(50vw, 280px);
+	height: min(50vw, 280px);
+}
