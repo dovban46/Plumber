@@ -171,7 +171,13 @@ function cyberrete_enqueue_styles_and_scripts() {
 		array(),
 		'11.0.0'
 	);
-	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts' ), $css_version, 'all' );
+	wp_enqueue_style(
+		'sf-ui-display-font',
+		'https://fonts.cdnfonts.com/css/sf-ui-display',
+		array(),
+		null
+	);
+	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts', 'sf-ui-display-font' ), $css_version, 'all' );
 	wp_enqueue_script(
 		'swiper-js',
 		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',

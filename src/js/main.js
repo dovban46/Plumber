@@ -205,6 +205,78 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	}
 
+	const aboutSection = document.querySelector('.about-section');
+
+	if (aboutSection) {
+		if ('IntersectionObserver' in window) {
+			const aboutObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							aboutSection.classList.add('is-visible');
+							observer.unobserve(entry.target);
+						}
+					});
+				},
+				{
+					threshold: 0.2,
+				}
+			);
+
+			aboutObserver.observe(aboutSection);
+		} else {
+			aboutSection.classList.add('is-visible');
+		}
+	}
+
+	const whyChooseSection = document.querySelector('.why-choose');
+
+	if (whyChooseSection) {
+		if ('IntersectionObserver' in window) {
+			const whyChooseObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							whyChooseSection.classList.add('is-visible');
+							observer.unobserve(entry.target);
+						}
+					});
+				},
+				{
+					threshold: 0.2,
+				}
+			);
+
+			whyChooseObserver.observe(whyChooseSection);
+		} else {
+			whyChooseSection.classList.add('is-visible');
+		}
+	}
+
+	const ourServicesSection = document.querySelector('.our-services');
+
+	if (ourServicesSection) {
+		if ('IntersectionObserver' in window) {
+			const ourServicesObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							ourServicesSection.classList.add('is-visible');
+							observer.unobserve(entry.target);
+						}
+					});
+				},
+				{
+					threshold: 0.2,
+				}
+			);
+
+			ourServicesObserver.observe(ourServicesSection);
+		} else {
+			ourServicesSection.classList.add('is-visible');
+		}
+	}
+
 	const dataUrl = window.plumberTheme?.initialDataUrl;
 
 	if (!dataUrl) {

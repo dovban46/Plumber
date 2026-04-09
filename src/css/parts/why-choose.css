@@ -1,5 +1,21 @@
 .why-choose {
 	padding: 96px 0 270px;
+	opacity: 0;
+	transform: translateY(36px);
+	transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.why-choose.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.why-choose {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
 }
 
 .why-choose__container {

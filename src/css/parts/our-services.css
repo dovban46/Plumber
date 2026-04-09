@@ -1,6 +1,22 @@
 .our-services {
 	padding: 96px 0 72px;
 	overflow-x: clip;
+	opacity: 0;
+	transform: translateY(36px);
+	transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.our-services.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.our-services {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
 }
 
 .our-services__container {
