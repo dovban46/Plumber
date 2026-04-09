@@ -27,6 +27,8 @@ if ( empty( $items ) ) {
 				$item_icon  = isset( $item['icon'] ) ? $item['icon'] : null;
 				$icon_url   = '';
 				$icon_alt   = '';
+				$mobile_text       = '';
+				$mobile_small_text = '';
 
 				if ( is_array( $item_icon ) ) {
 					$icon_url = isset( $item_icon['url'] ) ? $item_icon['url'] : '';
@@ -36,6 +38,28 @@ if ( empty( $items ) ) {
 					$icon_alt = (string) get_post_meta( (int) $item_icon, '_wp_attachment_image_alt', true );
 				} elseif ( is_string( $item_icon ) ) {
 					$icon_url = $item_icon;
+				}
+
+				if ( $item_text ) {
+					$item_text_plain = trim( wp_strip_all_tags( (string) $item_text ) );
+					$mobile_text       = $item_text_plain;
+					$mobile_small_text = $item_text_plain;
+
+					if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_substr' ) ) {
+						if ( mb_strlen( $item_text_plain ) > 85 ) {
+							$mobile_text = rtrim( mb_substr( $item_text_plain, 0, 85 ) ) . '...';
+						}
+						if ( mb_strlen( $item_text_plain ) > 75 ) {
+							$mobile_small_text = rtrim( mb_substr( $item_text_plain, 0, 75 ) ) . '...';
+						}
+					} elseif ( strlen( $item_text_plain ) > 85 ) {
+						$mobile_text = rtrim( substr( $item_text_plain, 0, 85 ) ) . '...';
+						if ( strlen( $item_text_plain ) > 75 ) {
+							$mobile_small_text = rtrim( substr( $item_text_plain, 0, 75 ) ) . '...';
+						}
+					} elseif ( strlen( $item_text_plain ) > 75 ) {
+						$mobile_small_text = rtrim( substr( $item_text_plain, 0, 75 ) ) . '...';
+					}
 				}
 				?>
 
@@ -53,7 +77,11 @@ if ( empty( $items ) ) {
 					</div>
 
 					<?php if ( $item_text ) : ?>
-						<p class="why-choose-card__text"><?php echo esc_html( $item_text ); ?></p>
+						<p class="why-choose-card__text">
+							<span class="why-choose-card__text-desktop"><?php echo esc_html( $item_text ); ?></span>
+							<span class="why-choose-card__text-mobile"><?php echo esc_html( $mobile_text ); ?></span>
+							<span class="why-choose-card__text-mobile-small"><?php echo esc_html( $mobile_small_text ); ?></span>
+						</p>
 					<?php endif; ?>
 				</article>
 			<?php endforeach; ?>

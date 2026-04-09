@@ -165,7 +165,20 @@ function cyberrete_enqueue_styles_and_scripts() {
 		array(),
 		null
 	);
+	wp_enqueue_style(
+		'swiper-css',
+		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+		array(),
+		'11.0.0'
+	);
 	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts' ), $css_version, 'all' );
+	wp_enqueue_script(
+		'swiper-js',
+		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+		array(),
+		'11.0.0',
+		true
+	);
 	wp_enqueue_script(
 		'lottie-web',
 		'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js',
@@ -173,7 +186,7 @@ function cyberrete_enqueue_styles_and_scripts() {
 		'5.12.2',
 		true
 	);
-	wp_enqueue_script( 'plumber-main-js', get_template_directory_uri() . '/src/js/main.js', array( 'lottie-web' ), $js_version, true );
+	wp_enqueue_script( 'plumber-main-js', get_template_directory_uri() . '/src/js/main.js', array( 'swiper-js', 'lottie-web' ), $js_version, true );
 
 	wp_localize_script(
 		'plumber-main-js',
