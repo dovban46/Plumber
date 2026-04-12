@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section'];
+	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section', '.contact-section'];
 	const revealedElements = revealSections
 		.map((selector) => document.querySelector(selector))
 		.filter(Boolean);
@@ -293,6 +293,190 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 			});
+		});
+	}
+
+	const phoneRows = document.querySelectorAll('.contact-form-wrapper .cf-contact__phone-row');
+	if (phoneRows.length) {
+		phoneRows.forEach((row) => {
+			row.querySelectorAll('br').forEach((lineBreak) => lineBreak.remove());
+		});
+	}
+
+	const countryCodeSelect = document.querySelector('.contact-form-wrapper select[name="country-code"]');
+	if (countryCodeSelect) {
+		Array.from(countryCodeSelect.options).forEach((option) => {
+			const label = (option.textContent || '').trim().toUpperCase();
+			if (label.startsWith('US')) {
+				option.dataset.country = 'us';
+			} else if (label.startsWith('CA')) {
+				option.dataset.country = 'ca';
+			}
+		});
+	}
+
+	const customSelectSources = document.querySelectorAll('.contact-form-wrapper select');
+
+	if (customSelectSources.length) {
+		const closeAllCustomSelects = () => {
+			document.querySelectorAll('.contact-form-wrapper .wpcf7-form-control-wrap.is-select-open').forEach((wrap) => {
+				wrap.classList.remove('is-select-open');
+				const dropdown = wrap.querySelector('.cf-custom-select__dropdown');
+				if (dropdown) {
+					dropdown.hidden = true;
+				}
+			});
+		};
+
+		const buildCustomSelect = (select) => {
+			if (!(select instanceof HTMLSelectElement) || select.dataset.customized === 'true') {
+				return;
+			}
+
+			const wrap = select.closest('.wpcf7-form-control-wrap');
+			if (!wrap) {
+				return;
+			}
+
+			select.dataset.customized = 'true';
+			wrap.classList.add('has-custom-select');
+
+			const uiRoot = document.createElement('div');
+			uiRoot.className = 'cf-custom-select';
+
+			const trigger = document.createElement('button');
+			trigger.type = 'button';
+			trigger.className = 'cf-custom-select__trigger';
+			trigger.setAttribute('aria-haspopup', 'listbox');
+			trigger.setAttribute('aria-expanded', 'false');
+
+			const triggerText = document.createElement('span');
+			triggerText.className = 'cf-custom-select__trigger-text';
+			trigger.appendChild(triggerText);
+
+			const dropdown = document.createElement('ul');
+			dropdown.className = 'cf-custom-select__dropdown';
+			dropdown.setAttribute('role', 'listbox');
+			dropdown.hidden = true;
+			const isCountrySelect = select.name === 'country-code';
+
+			const renderSelectLabel = (targetNode, sourceOption, withFlagClassName) => {
+				targetNode.textContent = '';
+				const optionLabel = sourceOption ? sourceOption.textContent || '' : '';
+				const countryCode = sourceOption ? (sourceOption.dataset.country || '').toLowerCase() : '';
+
+				if (isCountrySelect && (countryCode === 'us' || countryCode === 'ca')) {
+					const flag = document.createElement('span');
+					flag.className = `cf-custom-select__flag cf-custom-select__flag--${countryCode}`;
+					targetNode.appendChild(flag);
+				}
+
+				const label = document.createElement('span');
+				if (withFlagClassName) {
+					label.className = withFlagClassName;
+				}
+				label.textContent = optionLabel;
+				targetNode.appendChild(label);
+			};
+
+			const setTriggerLabel = () => {
+				const selectedOption = select.options[select.selectedIndex];
+				renderSelectLabel(triggerText, selectedOption, 'cf-custom-select__trigger-label');
+			};
+
+			const setOptionActiveState = () => {
+				const currentValue = select.value;
+				dropdown.querySelectorAll('.cf-custom-select__option').forEach((optionElement) => {
+					const isActive = optionElement.getAttribute('data-value') === currentValue;
+					optionElement.classList.toggle('is-active', isActive);
+				});
+			};
+
+			Array.from(select.options).forEach((option) => {
+				const optionItem = document.createElement('li');
+				const optionButton = document.createElement('button');
+				optionButton.type = 'button';
+				optionButton.className = 'cf-custom-select__option';
+				optionButton.setAttribute('role', 'option');
+				optionButton.setAttribute('data-value', option.value);
+				if (isCountrySelect) {
+					optionButton.classList.add('cf-custom-select__option--with-flag');
+				}
+				renderSelectLabel(optionButton, option, 'cf-custom-select__option-label');
+
+				if (option.disabled) {
+					optionButton.disabled = true;
+				}
+
+				optionButton.addEventListener('click', () => {
+					if (optionButton.disabled) {
+						return;
+					}
+
+					select.value = option.value;
+					select.dispatchEvent(new Event('change', { bubbles: true }));
+					setTriggerLabel();
+					setOptionActiveState();
+					wrap.classList.remove('is-select-open');
+					trigger.setAttribute('aria-expanded', 'false');
+					dropdown.hidden = true;
+				});
+
+				optionItem.appendChild(optionButton);
+				dropdown.appendChild(optionItem);
+			});
+
+			trigger.addEventListener('click', () => {
+				const isOpen = wrap.classList.contains('is-select-open');
+				closeAllCustomSelects();
+				if (!isOpen) {
+					wrap.classList.add('is-select-open');
+					trigger.setAttribute('aria-expanded', 'true');
+					dropdown.hidden = false;
+				} else {
+					trigger.setAttribute('aria-expanded', 'false');
+				}
+			});
+
+			trigger.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape') {
+					closeAllCustomSelects();
+					trigger.setAttribute('aria-expanded', 'false');
+				}
+			});
+
+			select.addEventListener('change', () => {
+				setTriggerLabel();
+				setOptionActiveState();
+			});
+
+			const parentForm = select.closest('form');
+			if (parentForm) {
+				parentForm.addEventListener('reset', () => {
+					window.setTimeout(() => {
+						setTriggerLabel();
+						setOptionActiveState();
+					}, 0);
+				});
+			}
+
+			uiRoot.appendChild(trigger);
+			uiRoot.appendChild(dropdown);
+			wrap.appendChild(uiRoot);
+
+			setTriggerLabel();
+			setOptionActiveState();
+		};
+
+		customSelectSources.forEach((select) => buildCustomSelect(select));
+
+		document.addEventListener('click', (event) => {
+			if (!(event.target instanceof Element)) {
+				return;
+			}
+			if (!event.target.closest('.contact-form-wrapper .has-custom-select')) {
+				closeAllCustomSelects();
+			}
 		});
 	}
 
