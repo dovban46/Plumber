@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
 	const headerInner = document.querySelector('.header-inner');
 	const menuToggle = document.querySelector('.menu-toggle');
 	const menuLinks = document.querySelectorAll('.main-navigation a');
@@ -205,169 +205,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 		}
 	}
 
-	const aboutSection = document.querySelector('.about-section');
+	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services'];
+	const revealedElements = revealSections
+		.map((selector) => document.querySelector(selector))
+		.filter(Boolean);
 
-	if (aboutSection) {
+	if (revealedElements.length) {
 		if ('IntersectionObserver' in window) {
-			const aboutObserver = new IntersectionObserver(
+			const revealObserver = new IntersectionObserver(
 				(entries, observer) => {
 					entries.forEach((entry) => {
 						if (entry.isIntersecting) {
-							aboutSection.classList.add('is-visible');
+							entry.target.classList.add('is-visible');
 							observer.unobserve(entry.target);
 						}
 					});
 				},
-				{
-					threshold: 0.2,
-				}
+				{ threshold: 0.2 }
 			);
 
-			aboutObserver.observe(aboutSection);
+			revealedElements.forEach((element) => revealObserver.observe(element));
 		} else {
-			aboutSection.classList.add('is-visible');
+			revealedElements.forEach((element) => element.classList.add('is-visible'));
 		}
 	}
 
-	const whyChooseSection = document.querySelector('.why-choose');
-
-	if (whyChooseSection) {
-		if ('IntersectionObserver' in window) {
-			const whyChooseObserver = new IntersectionObserver(
-				(entries, observer) => {
-					entries.forEach((entry) => {
-						if (entry.isIntersecting) {
-							whyChooseSection.classList.add('is-visible');
-							observer.unobserve(entry.target);
-						}
-					});
-				},
-				{
-					threshold: 0.2,
-				}
-			);
-
-			whyChooseObserver.observe(whyChooseSection);
-		} else {
-			whyChooseSection.classList.add('is-visible');
-		}
-	}
-
-	const ourServicesSection = document.querySelector('.our-services');
-
-	if (ourServicesSection) {
-		if ('IntersectionObserver' in window) {
-			const ourServicesObserver = new IntersectionObserver(
-				(entries, observer) => {
-					entries.forEach((entry) => {
-						if (entry.isIntersecting) {
-							ourServicesSection.classList.add('is-visible');
-							observer.unobserve(entry.target);
-						}
-					});
-				},
-				{
-					threshold: 0.2,
-				}
-			);
-
-			ourServicesObserver.observe(ourServicesSection);
-		} else {
-			ourServicesSection.classList.add('is-visible');
-		}
-	}
-
-	const dataUrl = window.plumberTheme?.initialDataUrl;
-
-	if (!dataUrl) {
-		return;
-	}
-
-	// Show preloader only on site entry, not on browser refresh (reload).
-	const navigationEntries = performance.getEntriesByType('navigation');
-	const navigationType = navigationEntries.length ? navigationEntries[0].type : 'navigate';
-	const isReload = navigationType === 'reload';
-
-	if (isReload) {
-		return;
-	}
-
-	// To enable animation on refresh again, comment out the block above:
-	// if (isReload) {
-	// 	return;
-	// }
-
-	const body = document.body;
-	const preloader = document.createElement('div');
-	preloader.className = 'plumber-preloader';
-	preloader.setAttribute('aria-hidden', 'true');
-	preloader.innerHTML = '<div class="plumber-preloader__animation"></div>';
-
-	const animationContainer = preloader.querySelector('.plumber-preloader__animation');
-	body.classList.add('plumber-loading');
-	body.appendChild(preloader);
-
-	let animationInstance = null;
-	let isClosed = false;
-
-	const closePreloader = () => {
-		if (isClosed) {
-			return;
-		}
-
-		isClosed = true;
-		preloader.classList.add('is-hidden');
-		body.classList.remove('plumber-loading');
-
-		window.setTimeout(() => {
-			preloader.remove();
-			if (animationInstance) {
-				animationInstance.destroy();
-			}
-		}, 450);
-	};
-
-	// Fallback: do not block users on slow network or invalid animation.
-	const hardTimeoutId = window.setTimeout(closePreloader, 6000);
-
-	try {
-		const response = await fetch(dataUrl, {
-			credentials: 'same-origin',
-		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to load initial data: ${response.status}`);
-		}
-
-		const initialData = await response.json();
-		window.plumberInitialData = initialData;
-
-		document.dispatchEvent(
-			new CustomEvent('plumber:initial-data-loaded', {
-				detail: initialData,
-			})
-		);
-
-		if (window.lottie && animationContainer) {
-			animationInstance = window.lottie.loadAnimation({
-				container: animationContainer,
-				renderer: 'svg',
-				loop: false,
-				autoplay: true,
-				animationData: initialData,
-			});
-
-			animationInstance.addEventListener('complete', () => {
-				window.clearTimeout(hardTimeoutId);
-				closePreloader();
-			});
-		} else {
-			window.clearTimeout(hardTimeoutId);
-			closePreloader();
-		}
-	} catch (error) {
-		console.error('Initial data load error:', error);
-		window.clearTimeout(hardTimeoutId);
-		closePreloader();
-	}
+	/*
+	 * Preloader animation from data.json is disabled.
+	 * Keeping this note so it can be restored later if needed.
+	 */
 });
