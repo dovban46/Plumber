@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services'];
+	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section'];
 	const revealedElements = revealSections
 		.map((selector) => document.querySelector(selector))
 		.filter(Boolean);
@@ -227,6 +227,94 @@ document.addEventListener('DOMContentLoaded', () => {
 			revealedElements.forEach((element) => revealObserver.observe(element));
 		} else {
 			revealedElements.forEach((element) => element.classList.add('is-visible'));
+		}
+	}
+
+	const faqItems = document.querySelectorAll('.faq-item');
+
+	if (faqItems.length) {
+		const setFaqItemState = (item, shouldOpen) => {
+			const trigger = item.querySelector('.faq-item__trigger');
+			const answer = item.querySelector('.faq-item__answer');
+
+			if (!trigger || !answer) {
+				return;
+			}
+
+			if (shouldOpen) {
+				item.classList.add('is-open');
+				trigger.setAttribute('aria-expanded', 'true');
+				answer.removeAttribute('hidden');
+				answer.style.maxHeight = `${answer.scrollHeight + 4}px`;
+				answer.setAttribute('aria-hidden', 'false');
+			} else {
+				item.classList.remove('is-open');
+				trigger.setAttribute('aria-expanded', 'false');
+				answer.removeAttribute('hidden');
+				answer.style.maxHeight = '0px';
+				answer.setAttribute('aria-hidden', 'true');
+			}
+		};
+
+		faqItems.forEach((item) => {
+			setFaqItemState(item, item.classList.contains('is-open'));
+		});
+
+		faqItems.forEach((item) => {
+			const trigger = item.querySelector('.faq-item__trigger');
+			const answer = item.querySelector('.faq-item__answer');
+
+			if (!trigger || !answer) {
+				return;
+			}
+
+			trigger.addEventListener('click', () => {
+				const isOpen = item.classList.contains('is-open');
+
+				if (isOpen) {
+					setFaqItemState(item, false);
+					return;
+				}
+
+				faqItems.forEach((currentItem) => {
+					setFaqItemState(currentItem, false);
+				});
+
+				setFaqItemState(item, true);
+			});
+		});
+
+		window.addEventListener('resize', () => {
+			faqItems.forEach((item) => {
+				if (item.classList.contains('is-open')) {
+					const answer = item.querySelector('.faq-item__answer');
+					if (answer) {
+						answer.style.maxHeight = `${answer.scrollHeight + 4}px`;
+					}
+				}
+			});
+		});
+	}
+
+	if (faqItems.length) {
+		if ('IntersectionObserver' in window) {
+			const faqItemsObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('is-visible');
+							observer.unobserve(entry.target);
+						}
+					});
+				},
+				{
+					threshold: 0.18,
+				}
+			);
+
+			faqItems.forEach((item) => faqItemsObserver.observe(item));
+		} else {
+			faqItems.forEach((item) => item.classList.add('is-visible'));
 		}
 	}
 

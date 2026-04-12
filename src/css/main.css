@@ -3,6 +3,7 @@
 @import url("./parts/why-choose.css");
 @import url("./parts/our-services.css");
 @import url("./parts/about.css");
+@import url("./parts/faq.css");
 
 body{
     margin: 0 !important;
