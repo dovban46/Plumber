@@ -177,7 +177,13 @@ function cyberrete_enqueue_styles_and_scripts() {
 		array(),
 		null
 	);
-	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts', 'sf-ui-display-font' ), $css_version, 'all' );
+	wp_enqueue_style(
+		'geist-font',
+		'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
+		array(),
+		null
+	);
+	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts', 'sf-ui-display-font', 'geist-font' ), $css_version, 'all' );
 	wp_enqueue_script(
 		'swiper-js',
 		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
@@ -214,15 +220,22 @@ if ( ! function_exists( 'mytheme_register_nav_menu' ) ) {
 	function mytheme_register_nav_menu() {
 		register_nav_menus(
 			array(
-				'Main-menu'        => __( 'Primary Menu', 'plumber' ),
-				'Main-footer-menu' => __( 'Footer Menu', 'plumber' ),
-				'footer_menu_1'    => __( 'Footer — Menu 1', 'plumber' ),
-				'footer_menu_2'    => __( 'Footer — Menu 2', 'plumber' ),
+				'Main-menu'          => __( 'Primary Menu', 'plumber' ),
+				'Main-footer-menu'   => __( 'Footer Menu', 'plumber' ),
+				'footer_menu_1'      => __( 'Footer — Menu 1', 'plumber' ),
+				'footer_menu_2'      => __( 'Footer — Menu 2', 'plumber' ),
+				'footer_quick_links' => __( 'Footer — Quick Links', 'plumber' ),
+				'footer_services'    => __( 'Footer — Services', 'plumber' ),
 			)
 		);
 	}
 	add_action( 'after_setup_theme', 'mytheme_register_nav_menu', 0 );
 }
+
+function plumber_year_shortcode() {
+	return gmdate( 'Y' );
+}
+add_shortcode( 'year', 'plumber_year_shortcode' );
 
 //add svg file
 function allow_svg_uploads( $mimes ) {

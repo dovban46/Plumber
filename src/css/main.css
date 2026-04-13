@@ -5,6 +5,7 @@
 @import url("./parts/about.css");
 @import url("./parts/faq.css");
 @import url("./parts/contact.css");
+@import url("./parts/footer.css");
 
 body{
     margin: 0 !important;
