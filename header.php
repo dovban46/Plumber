@@ -95,3 +95,13 @@
 			</div>
 		</div>
 	</header><!-- #masthead -->
+
+	<?php
+	$plumber_phone_fab = function_exists( 'plumber_get_floating_phone_link' ) ? plumber_get_floating_phone_link() : null;
+	if ( is_array( $plumber_phone_fab ) && ! empty( $plumber_phone_fab['url'] ) ) :
+		$plumber_phone_target = ! empty( $plumber_phone_fab['target'] ) ? $plumber_phone_fab['target'] : '_self';
+		?>
+		<a class="site-phone-fab hero-section__phone-link" href="<?php echo esc_url( $plumber_phone_fab['url'] ); ?>" target="<?php echo esc_attr( $plumber_phone_target ); ?>" aria-label="<?php echo esc_attr( ! empty( $plumber_phone_fab['title'] ) ? $plumber_phone_fab['title'] : __( 'Call us', 'plumber' ) ); ?>" <?php echo ( '_blank' === $plumber_phone_target ) ? 'rel="noopener noreferrer"' : ''; ?>>
+			<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/phone.svg' ); ?>" alt="">
+		</a>
+	<?php endif; ?>

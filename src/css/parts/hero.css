@@ -125,10 +125,8 @@
 	color: #f3f4f6;
 }
 
+/* Shared phone button look; fixed FAB uses .site-phone-fab (see header.php). */
 .hero-section__phone-link {
-	position: absolute;
-	right: 34px;
-	bottom: 80px;
 	width: 80px;
 	height: 80px;
 	border: 1px solid #959eb6;
@@ -138,6 +136,13 @@
 	justify-content: center;
 	text-decoration: none;
 	transition: border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.site-phone-fab.hero-section__phone-link {
+	position: fixed;
+	right: 34px;
+	bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+	z-index: 9990;
 }
 
 .hero-section__phone-link img {
@@ -200,14 +205,14 @@
 		padding: 18px 24px;
 	}
 
-	.hero-section__phone-link {
+	.site-phone-fab.hero-section__phone-link {
 		right: 16px;
-		bottom: 72px;
+		bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 		width: 53px;
 		height: 53px;
 	}
 
-	.hero-section__phone-link img {
+	.site-phone-fab.hero-section__phone-link img {
 		width: 29px;
 		height: 29px;
 	}

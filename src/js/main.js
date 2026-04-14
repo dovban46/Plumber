@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section', '.contact-section'];
+	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section'];
 	const revealedElements = revealSections
 		.map((selector) => document.querySelector(selector))
 		.filter(Boolean);
@@ -385,6 +385,56 @@ document.addEventListener('DOMContentLoaded', () => {
 			revealedElements.forEach((element) => revealObserver.observe(element));
 		} else {
 			revealedElements.forEach((element) => element.classList.add('is-visible'));
+		}
+	}
+
+	const contactSection = document.querySelector('.contact-section');
+	if (contactSection) {
+		const titleEl = contactSection.querySelector('.contact-section__title');
+		const itemEls = contactSection.querySelectorAll('.contact-item');
+		const formEl = contactSection.querySelector('.contact-section__form');
+		const mapEl = contactSection.querySelector('.contact-section__map');
+		const contactTargets = [titleEl, ...Array.from(itemEls), formEl, mapEl].filter(Boolean);
+
+		contactTargets.forEach((el) => el.classList.add('contact-reveal'));
+
+		const contactStaggerMs = 85;
+		const prefersReducedMotion =
+			window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const runContactReveal = () => {
+			if (!contactTargets.length) {
+				return;
+			}
+			if (prefersReducedMotion) {
+				contactTargets.forEach((el) => el.classList.add('is-visible'));
+				return;
+			}
+			contactTargets.forEach((el, index) => {
+				window.setTimeout(() => {
+					el.classList.add('is-visible');
+				}, index * contactStaggerMs);
+			});
+		};
+
+		if ('IntersectionObserver' in window) {
+			const contactObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							runContactReveal();
+							observer.disconnect();
+						}
+					});
+				},
+				{
+					threshold: 0,
+					rootMargin: '0px 0px 0px 0px',
+				}
+			);
+			contactObserver.observe(contactSection);
+		} else {
+			runContactReveal();
 		}
 	}
 

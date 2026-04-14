@@ -44,6 +44,55 @@ function my_acf_op_init() {
 }
 add_action( 'acf/init', 'my_acf_op_init' );
 
+/**
+ * Header option: site-wide fixed phone button (same UI as hero phone link).
+ */
+function plumber_register_floating_phone_acf_field() {
+	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
+		return;
+	}
+
+	acf_add_local_field_group(
+		array(
+			'key'                   => 'group_plumber_floating_phone',
+			'title'                 => __( 'Floating phone', 'plumber' ),
+			'fields'                => array(
+				array(
+					'key'           => 'field_plumber_floating_phone_link',
+					'label'         => __( 'Floating phone (fixed, all pages)', 'plumber' ),
+					'name'          => 'floating_phone_link',
+					'type'          => 'link',
+					'return_format' => 'array',
+					'instructions'  => __( 'Optional. If empty, the phone link from the Hero block on the front page is used.', 'plumber' ),
+				),
+			),
+			'location'              => array(
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'acf-options-header',
+					),
+				),
+				array(
+					array(
+						'param'    => 'options_page',
+						'operator' => '==',
+						'value'    => 'acf-options',
+					),
+				),
+			),
+			'position'              => 'side',
+			'active'                => true,
+			'show_in_rest'          => 0,
+			'style'                 => 'default',
+			'label_placement'       => 'top',
+			'instruction_placement' => 'label',
+		)
+	);
+}
+add_action( 'acf/init', 'plumber_register_floating_phone_acf_field', 15 );
+
 
 /*
 =====================

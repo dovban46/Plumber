@@ -1,12 +1,15 @@
 .contact-section {
 	padding: 96px 16px 340px;
+}
+
+.contact-reveal {
 	opacity: 0;
-	transform: translateY(42px);
-	transition: opacity 0.75s ease, transform 0.75s ease;
+	transform: translateY(28px);
+	transition: opacity 0.55s ease, transform 0.55s ease;
 	will-change: opacity, transform;
 }
 
-.contact-section.is-visible {
+.contact-reveal.is-visible {
 	opacity: 1;
 	transform: translateY(0);
 }
@@ -629,17 +632,54 @@
 	color: #ffb4b4;
 }
 
+/* Карта в одному рядку з формою: та сама висота колонки (grid stretch). */
 .contact-section__map {
+	display: flex;
+	flex-direction: column;
+	align-self: stretch;
+	height: 100%;
+	min-height: 737px;
 	border-radius: 12px;
 	overflow: hidden;
-	min-height: 737px;
+	background: #1a1d24;
+	box-sizing: border-box;
 }
 
-.contact-section__map iframe {
+/* Обгортка з шорткоду — розтягується на всю висоту колонки. */
+.contact-section__map > * {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 	width: 100%;
-	height: 100%;
+	box-sizing: border-box;
+}
+
+/* Типові вкладені обгортки плагінів карт. */
+.contact-section__map > * > * {
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.contact-section__map iframe,
+.contact-section__map embed {
+	flex: 1 1 auto;
+	width: 100% !important;
+	height: 100% !important;
+	min-height: 100%;
 	border: 0;
 	display: block;
+}
+
+.contact-section__map .leaflet-container,
+.contact-section__map .wpgmza_map {
+	flex: 1 1 auto;
+	min-height: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
 }
 
 @media (max-width: 1080px) {
@@ -651,6 +691,15 @@
 	.contact-section__map {
 		width: 100%;
 		min-height: 737px;
+		height: auto;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.contact-reveal {
+		opacity: 1;
+		transform: none;
+		transition: none;
 	}
 }
 
@@ -692,5 +741,40 @@
 		width: 100vw;
 		max-width: none;
 		border-radius: 0;
+	}
+
+	.contact-form-wrapper .cf-contact__label {
+		font-size: 16px;
+	}
+
+	.contact-form-wrapper .cf-contact__input,
+	.contact-form-wrapper .cf-contact__select,
+	.contact-form-wrapper .cf-contact__input--alt,
+	.contact-form-wrapper .cf-contact__select--alt,
+	.contact-form-wrapper input[type="text"],
+	.contact-form-wrapper input[type="email"],
+	.contact-form-wrapper input[type="tel"],
+	.contact-form-wrapper input[type="date"],
+	.contact-form-wrapper select {
+		font-size: 16px;
+	}
+
+	.contact-form-wrapper .cf-contact__textarea,
+	.contact-form-wrapper textarea {
+		font-size: 16px;
+	}
+
+	.contact-form-wrapper .cf-custom-select__trigger {
+		font-size: 16px;
+	}
+
+	.contact-form-wrapper .cf-custom-select__option {
+		font-size: 16px;
+	}
+
+	.contact-form-wrapper ::placeholder,
+	.contact-form-wrapper input::placeholder,
+	.contact-form-wrapper textarea::placeholder {
+		font-size: 16px;
 	}
 }

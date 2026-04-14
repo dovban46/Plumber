@@ -63,24 +63,7 @@ $contact_map  = isset( $contact_section['contact_map'] ) ? $contact_section['con
 			<div class="contact-section__map">
 				<?php
 				if ( $contact_map ) {
-					$allowed_html = array(
-						'iframe' => array(
-							'src'             => true,
-							'width'           => true,
-							'height'          => true,
-							'style'           => true,
-							'allowfullscreen' => true,
-							'loading'         => true,
-							'referrerpolicy'  => true,
-						),
-						'div'    => array(
-							'class' => true,
-							'id'    => true,
-							'style' => true,
-						),
-					);
-
-					echo wp_kses( $contact_map, $allowed_html ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo do_shortcode( $contact_map ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				?>
 			</div>

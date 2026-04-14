@@ -9,7 +9,6 @@ $hero_image_1   = isset( $hero_section['hero_image_1'] ) ? $hero_section['hero_i
 $hero_image_2   = isset( $hero_section['hero_image_2'] ) ? $hero_section['hero_image_2'] : null;
 $hero_button_1  = isset( $hero_section['hero_button_1'] ) ? $hero_section['hero_button_1'] : null;
 $hero_button_2  = isset( $hero_section['hero_button_2'] ) ? $hero_section['hero_button_2'] : null;
-$hero_link_icon = isset( $hero_section['hero_link_icon'] ) ? $hero_section['hero_link_icon'] : null;
 
 $resolve_image = static function ( $image_field ) {
 	$image_url = '';
@@ -62,10 +61,4 @@ $img_2 = $resolve_image( $hero_image_2 );
 			<?php endforeach; ?>
 		</div>
 	</div>
-
-	<?php if ( is_array( $hero_link_icon ) && ! empty( $hero_link_icon['url'] ) ) : ?>
-		<a class="hero-section__phone-link" href="<?php echo esc_url( $hero_link_icon['url'] ); ?>" target="<?php echo esc_attr( ! empty( $hero_link_icon['target'] ) ? $hero_link_icon['target'] : '_self' ); ?>" aria-label="<?php echo esc_attr( ! empty( $hero_link_icon['title'] ) ? $hero_link_icon['title'] : __( 'Call us', 'plumber' ) ); ?>" <?php echo ( ! empty( $hero_link_icon['target'] ) && '_blank' === $hero_link_icon['target'] ) ? 'rel="noopener noreferrer"' : ''; ?>>
-			<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/phone.svg' ); ?>" alt="">
-		</a>
-	<?php endif; ?>
 </section>
