@@ -97,10 +97,10 @@ if ( ! function_exists( 'plumber_our_services_resolve_taxonomy' ) ) {
 }
 
 $slug_1 = plumber_our_services_slug_from_acf_link( $button_1, 'residential' );
-$slug_2 = plumber_our_services_slug_from_acf_link( $button_2, 'schedule' );
+$slug_2 = plumber_our_services_slug_from_acf_link( $button_2, 'commercial' );
 
 if ( $slug_1 === $slug_2 ) {
-	$slug_2 = 'schedule';
+	$slug_2 = 'commercial';
 }
 
 $category_taxonomy = plumber_our_services_resolve_taxonomy(
@@ -116,7 +116,7 @@ $tabs = array(
 		'target' => ( is_array( $button_1 ) && ! empty( $button_1['target'] ) ) ? $button_1['target'] : '',
 	),
 	$slug_2 => array(
-		'label' => ! empty( $button_2['title'] ) ? $button_2['title'] : __( 'Schedule', 'plumber' ),
+		'label' => ! empty( $button_2['title'] ) ? $button_2['title'] : __( 'Commercial', 'plumber' ),
 		'url'   => ( is_array( $button_2 ) && ! empty( $button_2['url'] ) ) ? $button_2['url'] : '#' . $slug_2,
 		'target' => ( is_array( $button_2 ) && ! empty( $button_2['target'] ) ) ? $button_2['target'] : '',
 	),

@@ -13,7 +13,11 @@
  */
 
 get_header();
+?>
 
- the_acf_loop();
+<main id="primary" class="site-main">
+	<?php the_acf_loop(); ?>
+</main>
 
+<?php
 get_footer();

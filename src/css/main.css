@@ -7,10 +7,47 @@
 @import url("./parts/contact.css");
 @import url("./parts/footer.css");
 
-body{
-    margin: 0 !important;
-    background: #171717;
+html {
+	height: 100%;
+}
+
+body {
+	margin: 0 !important;
+	background: #171717;
 	font-family: "Nunito", sans-serif;
+	min-height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+#page.site {
+	display: flex;
+	flex-direction: column;
+	flex: 1 0 auto;
+	width: 100%;
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+
+#masthead.site-header {
+	flex-shrink: 0;
+}
+
+.site-content {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.site-main {
+	flex: 1 0 auto;
+	width: 100%;
+}
+
+#colophon.site-footer {
+	flex-shrink: 0;
+	margin-top: auto;
 }
 
 h1,
@@ -24,6 +61,16 @@ h6 {
 
 body.plumber-loading {
 	overflow: hidden;
+}
+
+/* our-services-template-default: spacing before footer lives on .site-main, not body */
+body.plumber-page-our-services-template {
+	padding-bottom: 0 !important;
+}
+
+body.plumber-page-our-services-template .site-main {
+	padding-bottom: 100px;
+	box-sizing: border-box;
 }
 
 .plumber-preloader {

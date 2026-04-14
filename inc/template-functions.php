@@ -22,6 +22,14 @@ function plumber_body_classes( $classes ) {
 		$classes[] = 'no-sidebar';
 	}
 
+	// Page template: our-services-template-default.php (any theme subfolder).
+	if ( is_page() ) {
+		$page_template = get_page_template_slug();
+		if ( $page_template && false !== strpos( $page_template, 'our-services-template-default' ) ) {
+			$classes[] = 'plumber-page-our-services-template';
+		}
+	}
+
 	return $classes;
 }
 add_filter( 'body_class', 'plumber_body_classes' );
