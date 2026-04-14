@@ -144,7 +144,10 @@
 }
 
 .footer__note {
-	justify-self: center;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	text-align: center;
 }
 
 .footer__terms {
@@ -200,5 +203,10 @@
 
 	.footer__policy {
 		margin-left: 0;
+	}
+
+	.footer__note {
+		position: static;
+		transform: none;
 	}
 }

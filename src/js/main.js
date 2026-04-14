@@ -1,4 +1,65 @@
 document.addEventListener('DOMContentLoaded', () => {
+	const initPreloader = () => {
+		const dataUrl = window.plumberTheme && window.plumberTheme.initialDataUrl ? window.plumberTheme.initialDataUrl : '';
+		if (!dataUrl || !window.lottie || !document.body) {
+			return;
+		}
+
+		document.body.classList.add('plumber-loading');
+
+		const preloader = document.createElement('div');
+		preloader.className = 'plumber-preloader';
+		preloader.setAttribute('aria-hidden', 'true');
+
+		const animationContainer = document.createElement('div');
+		animationContainer.className = 'plumber-preloader__animation';
+		preloader.appendChild(animationContainer);
+		document.body.appendChild(preloader);
+
+		let preloaderHidden = false;
+
+		const hidePreloader = () => {
+			if (preloaderHidden) {
+				return;
+			}
+
+			preloaderHidden = true;
+			preloader.classList.add('is-hidden');
+			document.body.classList.remove('plumber-loading');
+			window.setTimeout(() => {
+				if (preloader.parentNode) {
+					preloader.parentNode.removeChild(preloader);
+				}
+			}, 450);
+		};
+
+		fetch(dataUrl)
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error('Preloader data request failed');
+				}
+				return response.json();
+			})
+			.then((animationData) => {
+				const animation = window.lottie.loadAnimation({
+					container: animationContainer,
+					renderer: 'svg',
+					loop: false,
+					autoplay: true,
+					animationData,
+				});
+
+				animation.addEventListener('complete', hidePreloader);
+				animation.addEventListener('data_failed', hidePreloader);
+				window.setTimeout(hidePreloader, 7000);
+			})
+			.catch(() => {
+				hidePreloader();
+			});
+	};
+
+	initPreloader();
+
 	const headerInner = document.querySelector('.header-inner');
 	const menuToggle = document.querySelector('.menu-toggle');
 	const menuLinks = document.querySelectorAll('.main-navigation a');
@@ -114,45 +175,54 @@ document.addEventListener('DOMContentLoaded', () => {
 		startAutoScroll();
 	}
 
-	const ourServicesSlider = document.querySelector('.our-services-slider.swiper');
+	const ourServicesRoot = document.querySelector('.our-services');
 
-	if (ourServicesSlider && window.Swiper) {
-		const totalSlides = ourServicesSlider.querySelectorAll('.swiper-slide').length;
-		const paginationElement = ourServicesSlider.querySelector('.our-services-pagination');
+	if (ourServicesRoot && window.Swiper) {
+		const tabButtons = ourServicesRoot.querySelectorAll('[data-our-services-tab]');
+		const panels = ourServicesRoot.querySelectorAll('[data-our-services-panel]');
 
-		const servicesSwiper = new window.Swiper(ourServicesSlider, {
-			slidesPerView: 'auto',
-			spaceBetween: 64,
-			centeredSlides: true,
-			grabCursor: true,
-			simulateTouch: true,
-			speed: 650,
-			loop: false,
-			pagination: paginationElement ? {
-				el: paginationElement,
-				clickable: true,
-			} : undefined,
-		});
+		let servicesSwiper = null;
+		let direction = 1;
+		let autoTimer = null;
+		let resumeTimer = null;
+		let activeSliderEl = null;
+		let sliderInteractionAbort = null;
+		let resumeOurServicesAuto = () => {};
 
-		if (totalSlides > 1) {
-			let direction = 1;
-			let autoTimer = null;
-			let resumeTimer = null;
+		const clearAutoTimers = () => {
+			if (autoTimer) {
+				window.clearInterval(autoTimer);
+				autoTimer = null;
+			}
+			if (resumeTimer) {
+				window.clearTimeout(resumeTimer);
+				resumeTimer = null;
+			}
+		};
 
-			const clearAutoTimers = () => {
-				if (autoTimer) {
-					window.clearInterval(autoTimer);
-					autoTimer = null;
-				}
-				if (resumeTimer) {
-					window.clearTimeout(resumeTimer);
-					resumeTimer = null;
-				}
-			};
+		const destroyOurServicesSwiper = () => {
+			clearAutoTimers();
+			if (sliderInteractionAbort) {
+				sliderInteractionAbort.abort();
+				sliderInteractionAbort = null;
+			}
+			resumeOurServicesAuto = () => {};
+			if (servicesSwiper) {
+				servicesSwiper.destroy(true, true);
+				servicesSwiper = null;
+			}
+			activeSliderEl = null;
+		};
+
+		const setupPingPong = (swiperInstance, sliderEl) => {
+			const totalSlides = sliderEl.querySelectorAll('.swiper-slide').length;
+			if (totalSlides <= 1) {
+				return;
+			}
 
 			const goNext = () => {
-				const lastIndex = servicesSwiper.slides.length - 1;
-				const activeIndex = servicesSwiper.activeIndex;
+				const lastIndex = swiperInstance.slides.length - 1;
+				const activeIndex = swiperInstance.activeIndex;
 
 				if (activeIndex >= lastIndex) {
 					direction = -1;
@@ -160,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					direction = 1;
 				}
 
-				servicesSwiper.slideTo(activeIndex + direction);
+				swiperInstance.slideTo(activeIndex + direction);
 			};
 
 			const startAuto = () => {
@@ -178,31 +248,119 @@ document.addEventListener('DOMContentLoaded', () => {
 				resumeTimer = window.setTimeout(startAuto, 5000);
 			};
 
-			ourServicesSlider.addEventListener('pointerdown', clearAutoTimers, { passive: true });
-			ourServicesSlider.addEventListener('touchstart', clearAutoTimers, { passive: true });
-			ourServicesSlider.addEventListener('pointerup', pauseThenResume, { passive: true });
-			ourServicesSlider.addEventListener('touchend', pauseThenResume, { passive: true });
-			ourServicesSlider.addEventListener('pointercancel', pauseThenResume, { passive: true });
+			sliderInteractionAbort = new AbortController();
+			const signal = sliderInteractionAbort.signal;
 
-			servicesSwiper.on('slideChange', () => {
-				const lastIndex = servicesSwiper.slides.length - 1;
-				if (servicesSwiper.activeIndex >= lastIndex) {
+			sliderEl.addEventListener('pointerdown', clearAutoTimers, { passive: true, signal });
+			sliderEl.addEventListener('touchstart', clearAutoTimers, { passive: true, signal });
+			sliderEl.addEventListener('pointerup', pauseThenResume, { passive: true, signal });
+			sliderEl.addEventListener('touchend', pauseThenResume, { passive: true, signal });
+			sliderEl.addEventListener('pointercancel', pauseThenResume, { passive: true, signal });
+
+			swiperInstance.on('slideChange', () => {
+				const lastIndex = swiperInstance.slides.length - 1;
+				if (swiperInstance.activeIndex >= lastIndex) {
 					direction = -1;
-				} else if (servicesSwiper.activeIndex <= 0) {
+				} else if (swiperInstance.activeIndex <= 0) {
 					direction = 1;
 				}
 			});
 
-			document.addEventListener('visibilitychange', () => {
-				if (document.hidden) {
-					clearAutoTimers();
+			startAuto();
+			resumeOurServicesAuto = startAuto;
+		};
+
+		const initOurServicesSwiper = (sliderEl) => {
+			destroyOurServicesSwiper();
+
+			if (!sliderEl) {
+				return;
+			}
+
+			const totalSlides = sliderEl.querySelectorAll('.swiper-slide').length;
+			if (!totalSlides) {
+				return;
+			}
+
+			activeSliderEl = sliderEl;
+			const paginationElement = sliderEl.querySelector('.our-services-pagination');
+
+			servicesSwiper = new window.Swiper(sliderEl, {
+				slidesPerView: 'auto',
+				spaceBetween: 64,
+				centeredSlides: true,
+				grabCursor: true,
+				simulateTouch: true,
+				speed: 650,
+				loop: false,
+				pagination: paginationElement ? {
+					el: paginationElement,
+					clickable: true,
+				} : undefined,
+			});
+
+			direction = 1;
+			setupPingPong(servicesSwiper, sliderEl);
+		};
+
+		const setActiveTab = (slug) => {
+			tabButtons.forEach((button) => {
+				const isMatch = button.getAttribute('data-our-services-tab') === slug;
+				button.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+				button.classList.toggle('our-services__filter-button--filled', isMatch);
+				button.classList.toggle('our-services__filter-button--outline', !isMatch);
+			});
+
+			panels.forEach((panel) => {
+				const isMatch = panel.getAttribute('data-our-services-panel') === slug;
+				panel.classList.toggle('is-active', isMatch);
+				if (isMatch) {
+					panel.removeAttribute('hidden');
 				} else {
-					startAuto();
+					panel.setAttribute('hidden', '');
 				}
 			});
 
-			startAuto();
+			const targetPanel = ourServicesRoot.querySelector(`[data-our-services-panel="${slug}"]`);
+			const nextSlider = targetPanel ? targetPanel.querySelector('.our-services-slider.swiper') : null;
+			initOurServicesSwiper(nextSlider);
+		};
+
+		tabButtons.forEach((button) => {
+			button.addEventListener('click', (event) => {
+				const href = button.getAttribute('href');
+				if (href && href.startsWith('#')) {
+					event.preventDefault();
+				}
+
+				const slug = button.getAttribute('data-our-services-tab');
+				if (!slug) {
+					return;
+				}
+
+				const currentActive = ourServicesRoot.querySelector('.our-services__panel.is-active');
+				const currentSlug = currentActive ? currentActive.getAttribute('data-our-services-panel') : '';
+				if (slug === currentSlug) {
+					return;
+				}
+
+				setActiveTab(slug);
+			});
+		});
+
+		const initialPanel = ourServicesRoot.querySelector('.our-services__panel.is-active');
+		const initialSlug = initialPanel ? initialPanel.getAttribute('data-our-services-panel') : 'residential';
+		if (initialSlug) {
+			setActiveTab(initialSlug);
 		}
+
+		document.addEventListener('visibilitychange', () => {
+			if (document.hidden) {
+				clearAutoTimers();
+			} else {
+				resumeOurServicesAuto();
+			}
+		});
 	}
 
 	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section', '.contact-section'];
@@ -502,8 +660,4 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	/*
-	 * Preloader animation from data.json is disabled.
-	 * Keeping this note so it can be restored later if needed.
-	 */
 });
