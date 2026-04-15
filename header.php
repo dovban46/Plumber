@@ -16,12 +16,45 @@
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="profile" href="https://gmpg.org/xfn/11">
+	<style id="plumber-preloader-critical">
+		body.plumber-loading {
+			overflow: hidden;
+		}
+		.plumber-preloader {
+			position: fixed;
+			inset: 0;
+			z-index: 9999;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+			box-sizing: border-box;
+			background: #ffffff;
+		}
+		.plumber-preloader__animation {
+			box-sizing: border-box;
+			width: 100%;
+			max-width: 775px;
+			aspect-ratio: 1 / 1;
+			height: auto;
+			max-height: min(775px, 85vh);
+		}
+		@media (min-width: 769px) {
+			.plumber-preloader__animation {
+				max-width: 698px;
+				max-height: min(698px, 85vh);
+			}
+		}
+	</style>
 
 	<?php wp_head(); ?>
 </head>
 
-<body <?php body_class(); ?>>
+<body <?php body_class( 'plumber-loading' ); ?>>
 <?php wp_body_open(); ?>
+<div id="plumber-preloader" class="plumber-preloader" aria-hidden="true">
+	<div class="plumber-preloader__animation"></div>
+</div>
 <div id="page" class="site">
 
 	<header id="masthead" class="site-header">
@@ -97,7 +130,12 @@
 	</header><!-- #masthead -->
 
 	<?php
-	$plumber_phone_fab = function_exists( 'plumber_get_floating_phone_link' ) ? plumber_get_floating_phone_link() : null;
+	$plumber_phone_fab = function_exists( 'get_field' ) ? get_field( 'header_tel_link_icon', 'option' ) : null;
+
+	if ( ! is_array( $plumber_phone_fab ) || empty( $plumber_phone_fab['url'] ) ) {
+		$plumber_phone_fab = function_exists( 'plumber_get_floating_phone_link' ) ? plumber_get_floating_phone_link() : null;
+	}
+
 	if ( is_array( $plumber_phone_fab ) && ! empty( $plumber_phone_fab['url'] ) ) :
 		$plumber_phone_target = ! empty( $plumber_phone_fab['target'] ) ? $plumber_phone_fab['target'] : '_self';
 		?>

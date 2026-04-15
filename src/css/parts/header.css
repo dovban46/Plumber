@@ -74,6 +74,7 @@
 }
 
 .main-navigation a {
+	position: relative;
 	color: #ffffff;
 	text-decoration: none;
 	font-size: 16px;
@@ -84,7 +85,14 @@
 }
 
 .main-navigation a::after {
-	content: none;
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -4px;
+	width: 0;
+	height: 2px;
+	background-color: #129AE5;
+	transition: width 0.3s ease;
 }
 
 .main-navigation a:hover,
@@ -92,6 +100,10 @@
 .main-navigation .current-menu-item > a,
 .main-navigation .current-menu-ancestor > a {
 	color: #129AE5;
+
+	&::after {
+		width: 100%;
+	}
 }
 
 .header-button {

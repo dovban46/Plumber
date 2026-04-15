@@ -159,6 +159,12 @@ if ( ! empty( $footer_terms_link ) ) {
 	</footer>
 </div>
 
+<noscript>
+	<style>
+		body.plumber-loading { overflow: auto !important; }
+		#plumber-preloader { display: none !important; }
+	</style>
+</noscript>
 <?php wp_footer(); ?>
 
 </body>

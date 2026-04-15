@@ -1,10 +1,14 @@
 @import url("./parts/header.css");
 @import url("./parts/hero.css");
+@import url("./parts/page-hero.css");
 @import url("./parts/why-choose.css");
 @import url("./parts/our-services.css");
+@import url("./parts/services-page.css");
 @import url("./parts/about.css");
+@import url("./parts/about-page.css");
 @import url("./parts/faq.css");
 @import url("./parts/contact.css");
+@import url("./parts/contact-page.css");
 @import url("./parts/footer.css");
 
 html {
@@ -97,8 +101,15 @@ body.plumber-page-our-services-template .site-main {
 .plumber-preloader__animation {
 	box-sizing: border-box;
 	width: 100%;
-	max-width: 775px;
+	max-width: 705px;
 	aspect-ratio: 1 / 1;
 	height: auto;
-	max-height: min(775px, 85vh);
+	max-height: min(705px, 80vh);
+}
+
+@media (min-width: 769px) {
+	.plumber-preloader__animation {
+		max-width: 678px;
+		max-height: min(698px, 85vh);
+	}
 }

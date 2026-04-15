@@ -1,6 +1,6 @@
 .hero-section {
 	position: relative;
-	padding: 140px 16px 380px;
+	padding: 140px 16px 100px;
 	opacity: 0;
 	transform: translateY(36px);
 	transition: opacity 0.6s ease, transform 0.6s ease;
@@ -143,6 +143,98 @@
 	right: 34px;
 	bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 	z-index: 9990;
+	background-color: #171717;
+	overflow: visible;
+	animation: plumber-phone-fab-bob 2.8s ease-in-out infinite;
+	will-change: transform;
+}
+
+@keyframes plumber-phone-fab-bob {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-6px);
+	}
+}
+
+/* Кільця над фоном кнопки (інакше z-index:0 ховається під background). */
+.site-phone-fab.hero-section__phone-link::before,
+.site-phone-fab.hero-section__phone-link::after {
+	content: "";
+	position: absolute;
+	inset: -2px;
+	border-radius: 50%;
+	border: 1px solid rgba(18, 154, 229, 0.4);
+	box-shadow: 0 0 0 1px rgba(18, 154, 229, 0.15);
+	pointer-events: none;
+	z-index: 1;
+	background: transparent;
+	animation: plumber-phone-ripple 2.4s ease-out infinite;
+	transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.site-phone-fab.hero-section__phone-link::after {
+	animation-delay: 1.2s;
+}
+
+.site-phone-fab.hero-section__phone-link:hover::before,
+.site-phone-fab.hero-section__phone-link:hover::after,
+.site-phone-fab.hero-section__phone-link:focus-visible::before,
+.site-phone-fab.hero-section__phone-link:focus-visible::after {
+	border-color: #129ae5;
+	box-shadow: 0 0 0 1px rgba(18, 154, 229, 0.35);
+}
+
+@keyframes plumber-phone-ripple {
+	0% {
+		transform: scale(1);
+		opacity: 0.75;
+	}
+	100% {
+		transform: scale(1.75);
+		opacity: 0;
+	}
+}
+
+.site-phone-fab.hero-section__phone-link img {
+	position: relative;
+	z-index: 2;
+	width: 32px;
+	height: 32px;
+	display: block;
+	transform-origin: 50% 42%;
+	animation: plumber-phone-icon-ring 2.5s ease-in-out infinite;
+}
+
+@keyframes plumber-phone-icon-ring {
+	0%,
+	38%,
+	100% {
+		transform: rotate(0deg);
+	}
+	5% {
+		transform: rotate(-11deg);
+	}
+	10% {
+		transform: rotate(11deg);
+	}
+	15% {
+		transform: rotate(-8deg);
+	}
+	20% {
+		transform: rotate(8deg);
+	}
+	25% {
+		transform: rotate(-4deg);
+	}
+	30% {
+		transform: rotate(4deg);
+	}
+	33% {
+		transform: rotate(0deg);
+	}
 }
 
 .hero-section__phone-link img {
@@ -155,6 +247,10 @@
 .hero-section__phone-link:focus-visible {
 	border-color: #129ae5;
 	background: rgba(18, 154, 229, 0.12);
+}
+
+.hero-section__phone-link:not(.site-phone-fab):hover,
+.hero-section__phone-link:not(.site-phone-fab):focus-visible {
 	transform: translateY(-1px);
 }
 
@@ -210,6 +306,20 @@
 		bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 		width: 53px;
 		height: 53px;
+		z-index: 9990;
+		transition: opacity 0.25s ease, visibility 0.25s ease;
+		background-color: #171717;
+		border-radius: 50%;
+		box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.site-phone-fab.hero-section__phone-link:not(.site-phone-fab--scroll-visible) {
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
 	}
 
 	.site-phone-fab.hero-section__phone-link img {
@@ -228,5 +338,20 @@
 	.hero-section__button,
 	.hero-section__phone-link {
 		transition: none;
+	}
+
+	.site-phone-fab.hero-section__phone-link {
+		animation: none;
+		transform: none;
+	}
+
+	.site-phone-fab.hero-section__phone-link::before,
+	.site-phone-fab.hero-section__phone-link::after {
+		animation: none;
+		opacity: 0;
+	}
+
+	.site-phone-fab.hero-section__phone-link img {
+		animation: none;
 	}
 }

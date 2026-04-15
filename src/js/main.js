@@ -1,20 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const initPreloader = () => {
 		const dataUrl = window.plumberTheme && window.plumberTheme.initialDataUrl ? window.plumberTheme.initialDataUrl : '';
+
+		let preloaderRoot = document.getElementById('plumber-preloader');
+
+		const removePreloaderShell = () => {
+			document.body.classList.remove('plumber-loading');
+			const el = document.getElementById('plumber-preloader');
+			if (el && el.parentNode) {
+				el.parentNode.removeChild(el);
+			}
+		};
+
 		if (!dataUrl || !window.lottie || !document.body) {
+			removePreloaderShell();
 			return;
 		}
 
+		let animationContainer = preloaderRoot ? preloaderRoot.querySelector('.plumber-preloader__animation') : null;
+
+		if (!preloaderRoot || !animationContainer) {
+			preloaderRoot = document.createElement('div');
+			preloaderRoot.id = 'plumber-preloader';
+			preloaderRoot.className = 'plumber-preloader';
+			preloaderRoot.setAttribute('aria-hidden', 'true');
+			animationContainer = document.createElement('div');
+			animationContainer.className = 'plumber-preloader__animation';
+			preloaderRoot.appendChild(animationContainer);
+			document.body.appendChild(preloaderRoot);
+		}
+
 		document.body.classList.add('plumber-loading');
-
-		const preloader = document.createElement('div');
-		preloader.className = 'plumber-preloader';
-		preloader.setAttribute('aria-hidden', 'true');
-
-		const animationContainer = document.createElement('div');
-		animationContainer.className = 'plumber-preloader__animation';
-		preloader.appendChild(animationContainer);
-		document.body.appendChild(preloader);
 
 		let preloaderHidden = false;
 
@@ -24,11 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			preloaderHidden = true;
-			preloader.classList.add('is-hidden');
+			preloaderRoot.classList.add('is-hidden');
 			document.body.classList.remove('plumber-loading');
 			window.setTimeout(() => {
-				if (preloader.parentNode) {
-					preloader.parentNode.removeChild(preloader);
+				if (preloaderRoot.parentNode) {
+					preloaderRoot.parentNode.removeChild(preloaderRoot);
 				}
 			}, 450);
 		};
@@ -59,6 +75,28 @@ document.addEventListener('DOMContentLoaded', () => {
 	};
 
 	initPreloader();
+
+	const phoneFab = document.querySelector('.site-phone-fab');
+	if (phoneFab) {
+		const phoneFabMobileMq = window.matchMedia('(max-width: 768px)');
+		const phoneFabScrollRevealPx = 250;
+
+		const syncPhoneFabScrollVisibility = () => {
+			if (!phoneFabMobileMq.matches) {
+				phoneFab.classList.add('site-phone-fab--scroll-visible');
+				return;
+			}
+			if (window.scrollY >= phoneFabScrollRevealPx) {
+				phoneFab.classList.add('site-phone-fab--scroll-visible');
+			} else {
+				phoneFab.classList.remove('site-phone-fab--scroll-visible');
+			}
+		};
+
+		syncPhoneFabScrollVisibility();
+		window.addEventListener('scroll', syncPhoneFabScrollVisibility, { passive: true });
+		phoneFabMobileMq.addEventListener('change', syncPhoneFabScrollVisibility);
+	}
 
 	const headerInner = document.querySelector('.header-inner');
 	const menuToggle = document.querySelector('.menu-toggle');
@@ -363,7 +401,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	const revealSections = ['.hero-section', '.about-section', '.why-choose', '.our-services', '.faq-section'];
+	const servicesPageSlider = document.querySelector('.services-page-slider.swiper');
+	if (servicesPageSlider && window.Swiper) {
+		new window.Swiper(servicesPageSlider, {
+			slidesPerView: 'auto',
+			spaceBetween: 20,
+			grabCursor: true,
+			speed: 650,
+			loop: false,
+			navigation: {
+				nextEl: '.services-page-section__arrow--next',
+				prevEl: '.services-page-section__arrow--prev',
+			},
+		});
+	}
+
+	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.our-services', '.faq-section'];
 	const revealedElements = revealSections
 		.map((selector) => document.querySelector(selector))
 		.filter(Boolean);
@@ -385,6 +438,74 @@ document.addEventListener('DOMContentLoaded', () => {
 			revealedElements.forEach((element) => revealObserver.observe(element));
 		} else {
 			revealedElements.forEach((element) => element.classList.add('is-visible'));
+		}
+	}
+
+	const aboutPageNumbers = document.querySelectorAll('.about-page-item__number[data-count-to]');
+	if (aboutPageNumbers.length) {
+		const prefersReducedMotion =
+			window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const animateCount = (numberEl) => {
+			if (!numberEl || numberEl.dataset.countAnimated === 'true') {
+				return;
+			}
+
+			const rawValue = (numberEl.dataset.countTo || '0').trim();
+			const normalizedValue = rawValue.replace(',', '.');
+			const finalValue = Number.parseFloat(normalizedValue);
+			const decimalPart = normalizedValue.includes('.') ? normalizedValue.split('.')[1] : '';
+			const decimals = decimalPart ? decimalPart.length : 0;
+
+			if (!Number.isFinite(finalValue) || finalValue < 0) {
+				numberEl.textContent = '0';
+				numberEl.dataset.countAnimated = 'true';
+				return;
+			}
+
+			if (prefersReducedMotion) {
+				numberEl.textContent = rawValue || `${finalValue}`;
+				numberEl.dataset.countAnimated = 'true';
+				return;
+			}
+
+			const duration = 1300;
+			const startTime = performance.now();
+
+			const step = (timestamp) => {
+				const elapsed = timestamp - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+				const easedProgress = 1 - Math.pow(1 - progress, 3);
+				const value = finalValue * easedProgress;
+				numberEl.textContent = decimals > 0 ? value.toFixed(decimals) : `${Math.round(value)}`;
+
+				if (progress < 1) {
+					window.requestAnimationFrame(step);
+				} else {
+					numberEl.textContent = rawValue || `${finalValue}`;
+					numberEl.dataset.countAnimated = 'true';
+				}
+			};
+
+			window.requestAnimationFrame(step);
+		};
+
+		if ('IntersectionObserver' in window) {
+			const numbersObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							animateCount(entry.target);
+							observer.unobserve(entry.target);
+						}
+					});
+				},
+				{ threshold: 0.6 }
+			);
+
+			aboutPageNumbers.forEach((numberEl) => numbersObserver.observe(numberEl));
+		} else {
+			aboutPageNumbers.forEach((numberEl) => animateCount(numberEl));
 		}
 	}
 
