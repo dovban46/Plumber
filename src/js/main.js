@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const initPreloader = () => {
 		const dataUrl = window.plumberTheme && window.plumberTheme.initialDataUrl ? window.plumberTheme.initialDataUrl : '';
+		const inlineInitialData = window.plumberTheme && window.plumberTheme.initialData ? window.plumberTheme.initialData : null;
 
 		let preloaderRoot = document.getElementById('plumber-preloader');
+		const preloaderShownAt = performance.now();
 
 		const removePreloaderShell = () => {
 			document.body.classList.remove('plumber-loading');
@@ -39,23 +41,32 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
+			const minVisibleMs = 100;
+			const elapsed = performance.now() - preloaderShownAt;
+			const hideDelay = Math.max(0, minVisibleMs - elapsed);
+
 			preloaderHidden = true;
-			preloaderRoot.classList.add('is-hidden');
-			document.body.classList.remove('plumber-loading');
 			window.setTimeout(() => {
-				if (preloaderRoot.parentNode) {
-					preloaderRoot.parentNode.removeChild(preloaderRoot);
-				}
-			}, 450);
+				preloaderRoot.classList.add('is-hidden');
+				document.body.classList.remove('plumber-loading');
+				window.setTimeout(() => {
+					if (preloaderRoot.parentNode) {
+						preloaderRoot.parentNode.removeChild(preloaderRoot);
+					}
+				}, 950);
+			}, hideDelay);
 		};
 
-		fetch(dataUrl)
-			.then((response) => {
+		const animationDataPromise = inlineInitialData
+			? Promise.resolve(inlineInitialData)
+			: fetch(dataUrl).then((response) => {
 				if (!response.ok) {
 					throw new Error('Preloader data request failed');
 				}
 				return response.json();
-			})
+			});
+
+		animationDataPromise
 			.then((animationData) => {
 				const animation = window.lottie.loadAnimation({
 					container: animationContainer,
@@ -64,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					autoplay: true,
 					animationData,
 				});
+				preloaderRoot.classList.add('plumber-preloader--lottie-ready');
 
 				animation.addEventListener('complete', hidePreloader);
 				animation.addEventListener('data_failed', hidePreloader);

@@ -30,8 +30,19 @@
 			padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
 			box-sizing: border-box;
 			background: #ffffff;
+			opacity: 1;
+			visibility: visible;
+			transform: translateY(0);
+			transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+		}
+		.plumber-preloader.is-hidden {
+			opacity: 0.02;
+			transform: translateY(-100%);
+			visibility: hidden;
+			pointer-events: none;
 		}
 		.plumber-preloader__animation {
+			position: relative;
 			box-sizing: border-box;
 			width: 100%;
 			max-width: 775px;

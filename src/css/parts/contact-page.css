@@ -82,6 +82,7 @@
 	margin-top: 28px;
 	display: inline-flex;
 	align-items: center;
+	gap: 8px;
 	color: #FAFAFA;
 	font-size: 16px;
 	font-weight: 400;
@@ -93,6 +94,19 @@
 .contact-page-section__map-link:hover,
 .contact-page-section__map-link:focus-visible {
 	color: #3ea0e2;
+}
+
+.contact-page-section__map-link-icon {
+	position: relative;
+	top: -1px;
+	display: inline-block;
+	flex: 0 0 32px;
+	width: 32px;
+	height: 32px;
+	background-color: currentColor;
+	-webkit-mask: url("../../../assets/images/right-rounded.svg") center/contain no-repeat;
+	mask: url("../../../assets/images/right-rounded.svg") center/contain no-repeat;
+	transition: background-color 0.2s ease;
 }
 
 .contact-page-section__form-wrap {

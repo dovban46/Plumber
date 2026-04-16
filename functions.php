@@ -158,6 +158,17 @@ function cyberrete_enqueue_styles_and_scripts() {
 	$css_version  = file_exists( $css_path ) ? filemtime( $css_path ) : null;
 	$js_version   = file_exists( $js_path ) ? filemtime( $js_path ) : null;
 	$data_version = file_exists( $data_json ) ? filemtime( $data_json ) : null;
+	$initial_data = null;
+
+	if ( file_exists( $data_json ) ) {
+		$raw_initial_data = file_get_contents( $data_json );
+		if ( false !== $raw_initial_data ) {
+			$decoded_initial_data = json_decode( $raw_initial_data, true );
+			if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded_initial_data ) ) {
+				$initial_data = $decoded_initial_data;
+			}
+		}
+	}
 
 	wp_enqueue_style(
 		'plumber-fonts',
@@ -208,6 +219,7 @@ function cyberrete_enqueue_styles_and_scripts() {
 				array( 'ver' => $data_version ),
 				get_template_directory_uri() . '/data.json'
 			),
+			'initialData'    => $initial_data,
 		)
 	);
 }

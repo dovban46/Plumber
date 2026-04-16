@@ -61,7 +61,8 @@ if ( is_array( $contact_page_map_link ) ) {
 
 				<?php if ( $map_link_url ) : ?>
 					<a class="contact-page-section__map-link" href="<?php echo esc_url( $map_link_url ); ?>" target="<?php echo esc_attr( $map_link_target ); ?>" <?php echo '_blank' === $map_link_target ? 'rel="noopener noreferrer"' : ''; ?>>
-						<?php echo esc_html( $map_link_title ? $map_link_title : __( 'Find us on map', 'plumber' ) ); ?>
+						<span class="contact-page-section__map-link-text"><?php echo esc_html( $map_link_title ? $map_link_title : __( 'Find us on map', 'plumber' ) ); ?></span>
+						<span class="contact-page-section__map-link-icon" aria-hidden="true"></span>
 					</a>
 				<?php endif; ?>
 			</div>
