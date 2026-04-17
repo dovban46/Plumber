@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		const inlineInitialData = window.plumberTheme && window.plumberTheme.initialData ? window.plumberTheme.initialData : null;
 
 		let preloaderRoot = document.getElementById('plumber-preloader');
+		if (!preloaderRoot) {
+			return;
+		}
 		const preloaderShownAt = performance.now();
 
 		const removePreloaderShell = () => {
@@ -21,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		let animationContainer = preloaderRoot ? preloaderRoot.querySelector('.plumber-preloader__animation') : null;
 
-		if (!preloaderRoot || !animationContainer) {
+		if (!animationContainer) {
 			preloaderRoot = document.createElement('div');
 			preloaderRoot.id = 'plumber-preloader';
 			preloaderRoot.className = 'plumber-preloader';
@@ -429,27 +432,43 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.our-services', '.faq-section'];
-	const revealedElements = revealSections
+	const instantRevealSections = ['.about-page-section', '.contact-page-section', '.services-page-section'];
+
+	const normalRevealElements = revealSections
+		.filter((selector) => !instantRevealSections.includes(selector))
 		.map((selector) => document.querySelector(selector))
 		.filter(Boolean);
 
-	if (revealedElements.length) {
-		if ('IntersectionObserver' in window) {
-			const revealObserver = new IntersectionObserver(
-				(entries, observer) => {
-					entries.forEach((entry) => {
-						if (entry.isIntersecting) {
-							entry.target.classList.add('is-visible');
-							observer.unobserve(entry.target);
-						}
-					});
-				},
-				{ threshold: 0.2 }
-			);
+	const instantRevealElements = instantRevealSections
+		.map((selector) => document.querySelector(selector))
+		.filter(Boolean);
 
-			revealedElements.forEach((element) => revealObserver.observe(element));
+	if (normalRevealElements.length || instantRevealElements.length) {
+		if ('IntersectionObserver' in window) {
+			const handleRevealEntries = (entries, observer) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('is-visible');
+						observer.unobserve(entry.target);
+					}
+				});
+			};
+
+			if (normalRevealElements.length) {
+				const revealObserver = new IntersectionObserver(handleRevealEntries, { threshold: 0.2 });
+				normalRevealElements.forEach((element) => revealObserver.observe(element));
+			}
+
+			if (instantRevealElements.length) {
+				const instantRevealObserver = new IntersectionObserver(handleRevealEntries, {
+					threshold: 0.01,
+					rootMargin: '0px 0px -5% 0px',
+				});
+				instantRevealElements.forEach((element) => instantRevealObserver.observe(element));
+			}
 		} else {
-			revealedElements.forEach((element) => element.classList.add('is-visible'));
+			normalRevealElements.forEach((element) => element.classList.add('is-visible'));
+			instantRevealElements.forEach((element) => element.classList.add('is-visible'));
 		}
 	}
 

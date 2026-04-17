@@ -189,6 +189,10 @@
 	transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.services-page-section__cta-text--mobile {
+	display: none;
+}
+
 .services-page-section__cta-button--filled {
 	background: #0668a9;
 }
@@ -222,6 +226,7 @@
 
 	.services-page-section__cta{
 		margin: 0;
+		padding: 56px 0;
 	}
 
 	.services-page-section__cta-title {
@@ -235,6 +240,14 @@
 
 	.services-page-section__cta-button{
 		padding: 18px 24px;
+	}
+
+	.services-page-section__cta-button--filled .services-page-section__cta-text--desktop {
+		display: none;
+	}
+
+	.services-page-section__cta-button--filled .services-page-section__cta-text--mobile {
+		display: inline;
 	}
 }
 

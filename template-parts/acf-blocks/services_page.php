@@ -103,7 +103,8 @@ $services_query = new WP_Query(
 			<div class="services-page-section__cta-buttons">
 				<?php if ( is_array( $services_page_button1 ) && ! empty( $services_page_button1['url'] ) ) : ?>
 					<a class="services-page-section__cta-button services-page-section__cta-button--filled" href="<?php echo esc_url( $services_page_button1['url'] ); ?>" target="<?php echo esc_attr( ! empty( $services_page_button1['target'] ) ? $services_page_button1['target'] : '_self' ); ?>" <?php echo ( ! empty( $services_page_button1['target'] ) && '_blank' === $services_page_button1['target'] ) ? 'rel="noopener noreferrer"' : ''; ?>>
-						<?php echo esc_html( ! empty( $services_page_button1['title'] ) ? $services_page_button1['title'] : __( 'Call us', 'plumber' ) ); ?>
+						<span class="services-page-section__cta-text services-page-section__cta-text--desktop"><?php echo esc_html( ! empty( $services_page_button1['title'] ) ? $services_page_button1['title'] : __( 'Call us', 'plumber' ) ); ?></span>
+						<span class="services-page-section__cta-text services-page-section__cta-text--mobile"><?php esc_html_e( 'Residential', 'plumber' ); ?></span>
 					</a>
 				<?php endif; ?>
 
