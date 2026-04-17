@@ -152,78 +152,270 @@ if ( defined( 'JETPACK__VERSION' ) ) {
 
 //connect styles and scripts
 function cyberrete_enqueue_styles_and_scripts() {
-	$css_path     = get_template_directory() . '/src/css/main.css';
-	$js_path      = get_template_directory() . '/src/js/main.js';
-	$data_json    = get_template_directory() . '/data.json';
-	$css_version  = file_exists( $css_path ) ? filemtime( $css_path ) : null;
-	$js_version   = file_exists( $js_path ) ? filemtime( $js_path ) : null;
-	$data_version = file_exists( $data_json ) ? filemtime( $data_json ) : null;
-	$initial_data = null;
+    $css_path     = get_template_directory() . '/dist/main.min.css';
+    $js_path      = get_template_directory() . '/dist/main.min.js';
+    $data_json    = get_template_directory() . '/data.json';
+    $css_version  = file_exists( $css_path ) ? filemtime( $css_path ) : null;
+    $js_version   = file_exists( $js_path ) ? filemtime( $js_path ) : null;
+    $data_version = file_exists( $data_json ) ? filemtime( $data_json ) : null;
+    $should_load_lottie = is_front_page() && ! wp_is_mobile();
+    $google_fonts_url   = add_query_arg(
+        array(
+            'family'  => 'Nunito:wght@400;500;600;700;800|Work+Sans:wght@500;600;700;800|Geist:wght@400;500;600;700',
+            'display' => 'swap',
+        ),
+        'https://fonts.googleapis.com/css2'
+    );
 
-	if ( file_exists( $data_json ) ) {
-		$raw_initial_data = file_get_contents( $data_json );
-		if ( false !== $raw_initial_data ) {
-			$decoded_initial_data = json_decode( $raw_initial_data, true );
-			if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded_initial_data ) ) {
-				$initial_data = $decoded_initial_data;
-			}
-		}
-	}
+    wp_enqueue_style(
+        'plumber-fonts',
+        $google_fonts_url,
+        array(),
+        null
+    );
+    wp_enqueue_style(
+        'swiper-css',
+        'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
+        array(),
+        '11.0.0'
+    );
+    wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/dist/main.min.css', array( 'plumber-fonts' ), $css_version, 'all' );
+    
+    if ( $should_load_lottie ) {
+        wp_enqueue_script(
+            'lottie-web',
+            'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js',
+            array(),
+            '5.12.2',
+            true
+        );
+        wp_script_add_data( 'lottie-web', 'defer', true );
+    }
 
-	wp_enqueue_style(
-		'plumber-fonts',
-		'https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Work+Sans:wght@500;600;700;800&display=swap',
-		array(),
-		null
-	);
-	wp_enqueue_style(
-		'swiper-css',
-		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css',
-		array(),
-		'11.0.0'
-	);
-	wp_enqueue_style(
-		'sf-ui-display-font',
-		'https://fonts.cdnfonts.com/css/sf-ui-display',
-		array(),
-		null
-	);
-	wp_enqueue_style(
-		'geist-font',
-		'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
-		array(),
-		null
-	);
-	wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/src/css/main.css', array( 'plumber-fonts', 'sf-ui-display-font', 'geist-font' ), $css_version, 'all' );
-	wp_enqueue_script(
-		'swiper-js',
-		'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
-		array(),
-		'11.0.0',
-		true
-	);
-	wp_enqueue_script(
-		'lottie-web',
-		'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js',
-		array(),
-		'5.12.2',
-		true
-	);
-	wp_enqueue_script( 'plumber-main-js', get_template_directory_uri() . '/src/js/main.js', array( 'swiper-js', 'lottie-web' ), $js_version, true );
+    $main_js_dependencies = array();
+    if ( $should_load_lottie ) {
+        $main_js_dependencies[] = 'lottie-web';
+    }
 
-	wp_localize_script(
-		'plumber-main-js',
-		'plumberTheme',
-		array(
-			'initialDataUrl' => add_query_arg(
-				array( 'ver' => $data_version ),
-				get_template_directory_uri() . '/data.json'
-			),
-			'initialData'    => $initial_data,
-		)
-	);
+    wp_enqueue_script( 'plumber-main-js', get_template_directory_uri() . '/dist/main.min.js', $main_js_dependencies, $js_version, true );
+    wp_script_add_data( 'plumber-main-js', 'defer', true );
+
+    wp_localize_script(
+        'plumber-main-js',
+        'plumberTheme',
+        array(
+            'initialDataUrl' => add_query_arg(
+                array( 'ver' => $data_version ),
+                get_template_directory_uri() . '/data.json'
+            ),
+            'swiperBundleUrl' => 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js',
+        )
+    );
 }
 add_action( 'wp_enqueue_scripts', 'cyberrete_enqueue_styles_and_scripts' );
+
+function plumber_resource_hints( $urls, $relation_type ) {
+    if ( 'preconnect' !== $relation_type ) {
+        return $urls;
+    }
+
+    $urls[] = array(
+        'href'        => 'https://fonts.googleapis.com',
+        'crossorigin' => 'anonymous',
+    );
+    $urls[] = array(
+        'href'        => 'https://fonts.gstatic.com',
+        'crossorigin' => 'anonymous',
+    );
+    $urls[] = array(
+        'href'        => 'https://cdn.jsdelivr.net',
+        'crossorigin' => 'anonymous',
+    );
+    $urls[] = array(
+        'href'        => 'https://cdnjs.cloudflare.com',
+        'crossorigin' => 'anonymous',
+    );
+
+    return $urls;
+}
+add_filter( 'wp_resource_hints', 'plumber_resource_hints', 10, 2 );
+
+function plumber_optimize_frontend_assets() {
+    if ( is_admin() ) {
+        return;
+    }
+
+    wp_dequeue_style( 'wp-block-library' );
+    wp_dequeue_style( 'wp-block-library-theme' );
+    wp_dequeue_style( 'global-styles' );
+    wp_dequeue_style( 'classic-theme-styles' );
+
+    if ( ! is_user_logged_in() ) {
+        wp_dequeue_style( 'dashicons' );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'plumber_optimize_frontend_assets', 100 );
+
+function plumber_disable_unused_wp_frontend_scripts() {
+    if ( is_admin() ) {
+        return;
+    }
+
+    remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+    remove_action( 'wp_print_styles', 'print_emoji_styles' );
+    wp_deregister_script( 'wp-embed' );
+}
+add_action( 'init', 'plumber_disable_unused_wp_frontend_scripts' );
+
+function plumber_page_uses_contact_integrations() {
+    if ( is_admin() ) {
+        return true;
+    }
+
+    $post_id = get_queried_object_id();
+    if ( ! $post_id ) {
+        return false;
+    }
+
+    $post = get_post( $post_id );
+    if ( $post instanceof WP_Post ) {
+        $content = (string) $post->post_content;
+        if (
+            has_shortcode( $content, 'contact-form-7' ) ||
+            has_shortcode( $content, 'wpcf7' ) ||
+            has_shortcode( $content, 'wpgmza' ) ||
+            has_shortcode( $content, 'wpgmza_map' ) ||
+            has_shortcode( $content, 'leaflet-map' )
+        ) {
+            return true;
+        }
+    }
+
+    if ( function_exists( 'have_rows' ) && have_rows( 'blocks', $post_id ) ) {
+        while ( have_rows( 'blocks', $post_id ) ) {
+            the_row();
+            $layout = (string) get_row_layout();
+            if ( in_array( $layout, array( 'contact', 'contact_page' ), true ) ) {
+                if ( function_exists( 'reset_rows' ) ) {
+                    reset_rows();
+                }
+                return true;
+            }
+        }
+        if ( function_exists( 'reset_rows' ) ) {
+            reset_rows();
+        }
+    }
+
+    return false;
+}
+
+function plumber_page_uses_swiper() {
+    if ( is_front_page() || is_singular( 'our-services' ) ) {
+        return true;
+    }
+
+    $post_id = get_queried_object_id();
+    if ( ! $post_id || ! function_exists( 'have_rows' ) ) {
+        return false;
+    }
+
+    if ( have_rows( 'blocks', $post_id ) ) {
+        while ( have_rows( 'blocks', $post_id ) ) {
+            the_row();
+            $layout = (string) get_row_layout();
+            if ( in_array( $layout, array( 'why_choose', 'our_services', 'services_page' ), true ) ) {
+                if ( function_exists( 'reset_rows' ) ) {
+                    reset_rows();
+                }
+                return true;
+            }
+        }
+        if ( function_exists( 'reset_rows' ) ) {
+            reset_rows();
+        }
+    }
+
+    return false;
+}
+
+function plumber_is_excluded_heavy_asset_src( $src ) {
+    $asset_markers = array(
+        '/atlas-novus/components.css',
+        '/atlas-novus/common.css',
+        '/atlas-novus/compat.css',
+        '/remodal-default-theme.css',
+        '/remodal.css',
+        '/jquery.dataTables.min.css',
+        '/font-awesome.min.css',
+        '/open-layers-latest.css',
+        '/polyfill/fa-',
+        '/atlas-novus',
+        '/open-layers',
+        '/leaflet',
+        '/wpgmza',
+        '/datatables',
+        '/remodal',
+    );
+
+    foreach ( $asset_markers as $marker ) {
+        if ( false !== strpos( $src, $marker ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function plumber_conditionally_skip_heavy_plugin_styles( $src, $handle ) {
+    if ( is_admin() || plumber_page_uses_contact_integrations() ) {
+        return $src;
+    }
+
+    if ( plumber_is_excluded_heavy_asset_src( (string) $src ) ) {
+        return false;
+    }
+
+    return $src;
+}
+add_filter( 'style_loader_src', 'plumber_conditionally_skip_heavy_plugin_styles', 20, 2 );
+
+function plumber_conditionally_skip_heavy_plugin_scripts( $src, $handle ) {
+    if ( is_admin() || plumber_page_uses_contact_integrations() ) {
+        return $src;
+    }
+
+    if ( plumber_is_excluded_heavy_asset_src( (string) $src ) ) {
+        return false;
+    }
+
+    return $src;
+}
+add_filter( 'script_loader_src', 'plumber_conditionally_skip_heavy_plugin_scripts', 20, 2 );
+
+function plumber_async_noncritical_styles( $html, $handle, $href, $media ) {
+    if ( is_admin() ) {
+        return $html;
+    }
+
+    $async_handles = array( 'plumber-fonts', 'swiper-css' );
+    $should_async  = in_array( $handle, $async_handles, true ) || plumber_is_excluded_heavy_asset_src( (string) $href );
+
+    if ( ! $should_async || empty( $href ) ) {
+        return $html;
+    }
+
+    $escaped_href = esc_url( $href );
+
+    return "<link rel='preload' as='style' id='{$handle}-css' href='{$escaped_href}' onload=\"this.onload=null;this.rel='stylesheet'\" media='all' />\n<noscript><link rel='stylesheet' id='{$handle}-css' href='{$escaped_href}' media='all' /></noscript>\n";
+}
+add_filter( 'style_loader_tag', 'plumber_async_noncritical_styles', 20, 4 );
+
+function plumber_maybe_load_wpcf7_assets() {
+    return plumber_page_uses_contact_integrations();
+}
+add_filter( 'wpcf7_load_js', 'plumber_maybe_load_wpcf7_assets' );
+add_filter( 'wpcf7_load_css', 'plumber_maybe_load_wpcf7_assets' );
 
 // add acf content
 require get_template_directory() . '/inc/theme-acf.php';

@@ -142,7 +142,7 @@
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url("../../../assets/images/info-circle.svg") center/contain no-repeat;
+	background: url("../assets/images/info-circle.svg") center/contain no-repeat;
 }
 
 .contact-form-wrapper h3::after,
@@ -151,7 +151,7 @@
 	width: 16px;
 	height: 16px;
 	display: inline-block;
-	background: url("../../../assets/images/info-circle.svg") center/contain no-repeat;
+	background: url("../assets/images/info-circle.svg") center/contain no-repeat;
 }
 
 .contact-form-wrapper .cf-contact__row {

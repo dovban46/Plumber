@@ -91,6 +91,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	initPreloader();
 
+	const applyGlobalLazyMedia = () => {
+		const eagerContainers = ['.site-header', '.hero-section', '.page-hero-section', '.plumber-preloader'];
+		const isInsideEagerContainer = (element) => eagerContainers.some((selector) => element.closest(selector));
+
+		document.querySelectorAll('img').forEach((img) => {
+			const currentLoading = img.getAttribute('loading');
+			if (
+				img.dataset.noLazy === 'true' ||
+				img.classList.contains('skip-lazy') ||
+				currentLoading === 'eager' ||
+				img.getAttribute('fetchpriority') === 'high' ||
+				isInsideEagerContainer(img)
+			) {
+				return;
+			}
+
+			if (!currentLoading || currentLoading === 'auto') {
+				img.setAttribute('loading', 'lazy');
+			}
+			if (!img.getAttribute('decoding')) {
+				img.setAttribute('decoding', 'async');
+			}
+			if (!img.getAttribute('fetchpriority')) {
+				img.setAttribute('fetchpriority', 'low');
+			}
+		});
+
+		document.querySelectorAll('iframe').forEach((iframe) => {
+			const currentLoading = iframe.getAttribute('loading');
+			if (
+				iframe.dataset.noLazy === 'true' ||
+				currentLoading === 'eager' ||
+				iframe.getAttribute('fetchpriority') === 'high' ||
+				isInsideEagerContainer(iframe)
+			) {
+				return;
+			}
+
+			if (!currentLoading || currentLoading === 'auto') {
+				iframe.setAttribute('loading', 'lazy');
+			}
+		});
+	};
+
+	applyGlobalLazyMedia();
+
 	const phoneFab = document.querySelector('.site-phone-fab');
 	if (phoneFab) {
 		const phoneFabMobileMq = window.matchMedia('(max-width: 768px)');
@@ -229,8 +275,48 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	const ourServicesRoot = document.querySelector('.our-services');
+	const servicesPageSlider = document.querySelector('.services-page-slider.swiper');
 
-	if (ourServicesRoot && window.Swiper) {
+	const loadSwiper = (() => {
+		let loaderPromise = null;
+
+		return () => {
+			if (window.Swiper) {
+				return Promise.resolve(window.Swiper);
+			}
+			if (loaderPromise) {
+				return loaderPromise;
+			}
+
+			const fallbackSwiperUrl = 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js';
+			const configuredSwiperUrl = window.plumberTheme && window.plumberTheme.swiperBundleUrl
+				? window.plumberTheme.swiperBundleUrl
+				: fallbackSwiperUrl;
+
+			loaderPromise = new Promise((resolve, reject) => {
+				const script = document.createElement('script');
+				script.src = configuredSwiperUrl;
+				script.defer = true;
+				script.onload = () => {
+					if (window.Swiper) {
+						resolve(window.Swiper);
+						return;
+					}
+					reject(new Error('Swiper loaded without global export'));
+				};
+				script.onerror = () => reject(new Error('Failed to load Swiper'));
+				document.head.appendChild(script);
+			});
+
+			return loaderPromise;
+		};
+	})();
+
+	const initOurServices = () => {
+		if (!ourServicesRoot || !window.Swiper) {
+			return;
+		}
+
 		const tabButtons = ourServicesRoot.querySelectorAll('[data-our-services-tab]');
 		const panels = ourServicesRoot.querySelectorAll('[data-our-services-panel]');
 
@@ -238,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		let direction = 1;
 		let autoTimer = null;
 		let resumeTimer = null;
-		let activeSliderEl = null;
 		let sliderInteractionAbort = null;
 		let resumeOurServicesAuto = () => {};
 
@@ -264,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				servicesSwiper.destroy(true, true);
 				servicesSwiper = null;
 			}
-			activeSliderEl = null;
 		};
 
 		const setupPingPong = (swiperInstance, sliderEl) => {
@@ -335,7 +419,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			activeSliderEl = sliderEl;
 			const paginationElement = sliderEl.querySelector('.our-services-pagination');
 
 			servicesSwiper = new window.Swiper(sliderEl, {
@@ -414,10 +497,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				resumeOurServicesAuto();
 			}
 		});
-	}
+	};
 
-	const servicesPageSlider = document.querySelector('.services-page-slider.swiper');
-	if (servicesPageSlider && window.Swiper) {
+	const initServicesPageSlider = () => {
+		if (!servicesPageSlider || !window.Swiper) {
+			return;
+		}
+
 		new window.Swiper(servicesPageSlider, {
 			slidesPerView: 'auto',
 			spaceBetween: 20,
@@ -429,6 +515,53 @@ document.addEventListener('DOMContentLoaded', () => {
 				prevEl: '.services-page-section__arrow--prev',
 			},
 		});
+	};
+
+	if (ourServicesRoot || servicesPageSlider) {
+		const sliderRoots = [ourServicesRoot, servicesPageSlider].filter(Boolean);
+		let hasLoadedSwiper = false;
+
+		const bootSwiperFeatures = () => {
+			if (hasLoadedSwiper) {
+				return;
+			}
+			hasLoadedSwiper = true;
+
+			loadSwiper()
+				.then(() => {
+					initOurServices();
+					initServicesPageSlider();
+				})
+				.catch(() => {
+					// Keep page interactive even if Swiper CDN is temporarily unavailable.
+				});
+		};
+
+		// Services page arrows must be interactive immediately on page load.
+		if (servicesPageSlider) {
+			bootSwiperFeatures();
+		}
+
+		if (!servicesPageSlider && 'IntersectionObserver' in window) {
+			const swiperObserver = new IntersectionObserver(
+				(entries, observer) => {
+					const shouldInit = entries.some((entry) => entry.isIntersecting);
+					if (!shouldInit) {
+						return;
+					}
+					observer.disconnect();
+					bootSwiperFeatures();
+				},
+				{
+					rootMargin: '300px 0px',
+					threshold: 0.01,
+				}
+			);
+
+			sliderRoots.forEach((root) => swiperObserver.observe(root));
+		} else {
+			bootSwiperFeatures();
+		}
 	}
 
 	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.our-services', '.faq-section'];

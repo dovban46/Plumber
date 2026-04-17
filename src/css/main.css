@@ -1,16 +1,3 @@
-@import url("./parts/header.css");
-@import url("./parts/hero.css");
-@import url("./parts/page-hero.css");
-@import url("./parts/why-choose.css");
-@import url("./parts/our-services.css");
-@import url("./parts/services-page.css");
-@import url("./parts/about.css");
-@import url("./parts/about-page.css");
-@import url("./parts/faq.css");
-@import url("./parts/contact.css");
-@import url("./parts/contact-page.css");
-@import url("./parts/footer.css");
-
 html {
 	height: 100%;
 }
@@ -76,6 +63,19 @@ body.plumber-page-our-services-template .site-main {
 	padding-bottom: 100px;
 	box-sizing: border-box;
 }
+
+.about-section,
+.about-page-section,
+.contact-section,
+.contact-page-section,
+.services-page-section,
+.why-choose,
+.our-services,
+.faq-section {
+	content-visibility: auto;
+	contain-intrinsic-size: 1px 800px;
+}
+
 .plumber-preloader {
 	position: fixed;
 	inset: 0;
@@ -115,3 +115,4 @@ body.plumber-page-our-services-template .site-main {
 		max-height: min(698px, 85vh);
 	}
 }
+
