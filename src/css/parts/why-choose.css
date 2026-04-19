@@ -141,9 +141,11 @@
 	.why-choose__grid {
 		display: flex;
 		grid-template-columns: none;
+		width: 100%;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
+		scroll-padding-inline: 0;
 		-webkit-overflow-scrolling: touch;
 		gap: 14px;
 		scrollbar-width: none;
@@ -158,8 +160,12 @@
 		min-height: 0;
 		height: 160px;
 		padding: 24px;
-		flex: 0 0 calc(100% - 44px);
+		box-sizing: border-box;
+		flex: 0 0 100%;
+		min-width: 100%;
+		max-width: 100%;
 		scroll-snap-align: start;
+		scroll-snap-stop: normal;
 	}
 
 	.why-choose-card__head{

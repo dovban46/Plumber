@@ -1,3 +1,52 @@
+/* Local Nunito + Work Sans (woff2). Paths relative to dist/main.min.css */
+@font-face {
+	font-family: "Nunito";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("../assets/fonts/Nunito-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Nunito";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("../assets/fonts/Nunito-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Nunito";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("../assets/fonts/Nunito-Bold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Work Sans";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("../assets/fonts/WorkSans-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Work Sans";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("../assets/fonts/WorkSans-SemiBold.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "Work Sans";
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("../assets/fonts/WorkSans-Bold.woff2") format("woff2");
+}
+
 html {
 	height: 100%;
 }
@@ -69,7 +118,6 @@ body.plumber-page-our-services-template .site-main {
 .contact-section,
 .contact-page-section,
 .services-page-section,
-.why-choose,
 .our-services,
 .faq-section {
 	content-visibility: auto;

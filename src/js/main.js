@@ -1,26 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
-	const initPreloader = () => {
-		const dataUrl = window.plumberTheme && window.plumberTheme.initialDataUrl ? window.plumberTheme.initialDataUrl : '';
-		const inlineInitialData = window.plumberTheme && window.plumberTheme.initialData ? window.plumberTheme.initialData : null;
+	const initPreloader = () =>
+		new Promise((resolve) => {
+			const dataUrl = window.plumberTheme && window.plumberTheme.initialDataUrl ? window.plumberTheme.initialDataUrl : '';
+			const inlineInitialData = window.plumberTheme && window.plumberTheme.initialData ? window.plumberTheme.initialData : null;
 
-		let preloaderRoot = document.getElementById('plumber-preloader');
-		if (!preloaderRoot) {
-			return;
-		}
-		const preloaderShownAt = performance.now();
-
-		const removePreloaderShell = () => {
-			document.body.classList.remove('plumber-loading');
-			const el = document.getElementById('plumber-preloader');
-			if (el && el.parentNode) {
-				el.parentNode.removeChild(el);
+			let preloaderRoot = document.getElementById('plumber-preloader');
+			if (!preloaderRoot) {
+				resolve();
+				return;
 			}
-		};
+			const preloaderShownAt = performance.now();
 
-		if (!dataUrl || !window.lottie || !document.body) {
-			removePreloaderShell();
-			return;
-		}
+			const removePreloaderShell = () => {
+				document.body.classList.remove('plumber-loading');
+				const el = document.getElementById('plumber-preloader');
+				if (el && el.parentNode) {
+					el.parentNode.removeChild(el);
+				}
+			};
+
+			if (!dataUrl || !window.lottie || !document.body) {
+				removePreloaderShell();
+				resolve();
+				return;
+			}
 
 		let animationContainer = preloaderRoot ? preloaderRoot.querySelector('.plumber-preloader__animation') : null;
 
@@ -49,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const hideDelay = Math.max(0, minVisibleMs - elapsed);
 
 			preloaderHidden = true;
+			resolve();
 			window.setTimeout(() => {
 				preloaderRoot.classList.add('is-hidden');
 				document.body.classList.remove('plumber-loading');
@@ -87,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			.catch(() => {
 				hidePreloader();
 			});
-	};
+		});
 
-	initPreloader();
+	const preloaderFinished = initPreloader();
 
 	const applyGlobalLazyMedia = () => {
 		const eagerContainers = ['.site-header', '.hero-section', '.page-hero-section', '.plumber-preloader'];
@@ -191,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (whyChooseSlider) {
 		let autoScrollInterval = null;
 		let resumeTimeout = null;
+		let whyChooseSlideIndex = 0;
 
 		const isMobileViewport = () => window.innerWidth < 768;
 		const clearTimers = () => {
@@ -204,12 +209,48 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		};
 
-		const getSlideStep = () => {
-			const firstSlide = whyChooseSlider.querySelector('.why-choose-card');
-			if (!firstSlide) {
+		const getWhyChooseSlides = () => Array.from(whyChooseSlider.querySelectorAll('.why-choose-card'));
+
+		const getWhyChooseGapPx = () => {
+			const styles = window.getComputedStyle(whyChooseSlider);
+			const raw = styles.columnGap || styles.gap || '14px';
+			const parsed = Number.parseFloat(raw);
+			return Number.isFinite(parsed) ? parsed : 14;
+		};
+
+		const getWhyChooseScrollLeftForIndex = (index) => {
+			const slides = getWhyChooseSlides();
+			if (!slides.length || index <= 0) {
 				return 0;
 			}
-			return firstSlide.getBoundingClientRect().width + 14;
+			const gap = getWhyChooseGapPx();
+			let left = 0;
+			const maxIndex = Math.min(index, slides.length - 1);
+			for (let i = 0; i < maxIndex; i += 1) {
+				left += slides[i].offsetWidth + gap;
+			}
+			const maxScrollLeft = Math.max(0, whyChooseSlider.scrollWidth - whyChooseSlider.clientWidth);
+			return Math.min(left, maxScrollLeft);
+		};
+
+		const syncWhyChooseIndexFromScroll = () => {
+			const slides = getWhyChooseSlides();
+			if (!slides.length) {
+				whyChooseSlideIndex = 0;
+				return;
+			}
+			const scrollLeft = whyChooseSlider.scrollLeft;
+			let best = 0;
+			let bestDist = Infinity;
+			slides.forEach((slide, i) => {
+				const target = getWhyChooseScrollLeftForIndex(i);
+				const dist = Math.abs(target - scrollLeft);
+				if (dist < bestDist) {
+					bestDist = dist;
+					best = i;
+				}
+			});
+			whyChooseSlideIndex = best;
 		};
 
 		const startAutoScroll = () => {
@@ -218,25 +259,34 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
+			const slides = getWhyChooseSlides();
+			if (!slides.length) {
+				return;
+			}
+
+			whyChooseSlideIndex = 0;
+			whyChooseSlider.scrollTo({ left: 0, behavior: 'auto' });
+
 			autoScrollInterval = window.setInterval(() => {
 				if (document.hidden) {
 					return;
 				}
 
-				const step = getSlideStep();
-				if (!step) {
+				const slideList = getWhyChooseSlides();
+				if (!slideList.length) {
 					return;
 				}
 
-				const maxScrollLeft = whyChooseSlider.scrollWidth - whyChooseSlider.clientWidth - 1;
-				const nextScrollLeft = whyChooseSlider.scrollLeft + step;
-
-				if (nextScrollLeft >= maxScrollLeft) {
+				const lastIndex = slideList.length - 1;
+				if (whyChooseSlideIndex >= lastIndex) {
+					whyChooseSlideIndex = 0;
 					whyChooseSlider.scrollTo({ left: 0, behavior: 'smooth' });
 					return;
 				}
 
-				whyChooseSlider.scrollTo({ left: nextScrollLeft, behavior: 'smooth' });
+				whyChooseSlideIndex += 1;
+				const targetLeft = getWhyChooseScrollLeftForIndex(whyChooseSlideIndex);
+				whyChooseSlider.scrollTo({ left: targetLeft, behavior: 'smooth' });
 			}, 3800);
 		};
 
@@ -245,7 +295,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!isMobileViewport()) {
 				return;
 			}
-			resumeTimeout = window.setTimeout(startAutoScroll, 4500);
+			syncWhyChooseIndexFromScroll();
+			resumeTimeout = window.setTimeout(() => {
+				preloaderFinished.then(() => startAutoScroll());
+			}, 4500);
 		};
 
 		whyChooseSlider.addEventListener('touchstart', clearTimers, { passive: true });
@@ -258,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (document.hidden) {
 				clearTimers();
 			} else {
-				startAutoScroll();
+				preloaderFinished.then(() => startAutoScroll());
 			}
 		});
 
@@ -268,10 +321,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				whyChooseSlider.scrollLeft = 0;
 				return;
 			}
-			startAutoScroll();
+			preloaderFinished.then(() => startAutoScroll());
 		});
 
-		startAutoScroll();
+		preloaderFinished.then(() => startAutoScroll());
 	}
 
 	const ourServicesRoot = document.querySelector('.our-services');

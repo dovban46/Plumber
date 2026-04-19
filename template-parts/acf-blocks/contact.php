@@ -63,7 +63,42 @@ $contact_map  = isset( $contact_section['contact_map'] ) ? $contact_section['con
 			<div class="contact-section__map">
 				<?php
 				if ( $contact_map ) {
-					echo do_shortcode( $contact_map ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$map_image_html = '';
+					$map_alt        = $contact_title ? $contact_title : __( 'Map', 'plumber' );
+
+					if ( is_array( $contact_map ) && isset( $contact_map['ID'] ) ) {
+						$map_image_html = wp_get_attachment_image(
+							(int) $contact_map['ID'],
+							'full',
+							false,
+							array(
+								'class'   => 'contact-section__map-image',
+								'loading' => 'lazy',
+								'alt'     => $map_alt,
+							)
+						);
+					} elseif ( is_numeric( $contact_map ) ) {
+						$map_image_html = wp_get_attachment_image(
+							(int) $contact_map,
+							'full',
+							false,
+							array(
+								'class'   => 'contact-section__map-image',
+								'loading' => 'lazy',
+								'alt'     => $map_alt,
+							)
+						);
+					} elseif ( is_string( $contact_map ) ) {
+						$map_image_html = sprintf(
+							'<img class="contact-section__map-image" src="%1$s" alt="%2$s" loading="lazy" decoding="async" />',
+							esc_url( $contact_map ),
+							esc_attr( $map_alt )
+						);
+					}
+
+					if ( $map_image_html ) {
+						echo $map_image_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
 				}
 				?>
 			</div>

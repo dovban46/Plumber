@@ -158,18 +158,19 @@ function cyberrete_enqueue_styles_and_scripts() {
     $css_version  = file_exists( $css_path ) ? filemtime( $css_path ) : null;
     $js_version   = file_exists( $js_path ) ? filemtime( $js_path ) : null;
     $data_version = file_exists( $data_json ) ? filemtime( $data_json ) : null;
-    $should_load_lottie = is_front_page() && ! wp_is_mobile();
-    $google_fonts_url   = add_query_arg(
+    // Lottie must load on mobile too: without it main.js removes the preloader (no window.lottie).
+    $should_load_lottie = is_front_page();
+    $geist_fonts_url    = add_query_arg(
         array(
-            'family'  => 'Nunito:wght@400;500;600;700;800|Work+Sans:wght@500;600;700;800|Geist:wght@400;500;600;700',
+            'family'  => 'Geist:wght@400;500;600;700',
             'display' => 'swap',
         ),
         'https://fonts.googleapis.com/css2'
     );
 
     wp_enqueue_style(
-        'plumber-fonts',
-        $google_fonts_url,
+        'plumber-fonts-geist',
+        $geist_fonts_url,
         array(),
         null
     );
@@ -179,7 +180,7 @@ function cyberrete_enqueue_styles_and_scripts() {
         array(),
         '11.0.0'
     );
-    wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/dist/main.min.css', array( 'plumber-fonts' ), $css_version, 'all' );
+    wp_enqueue_style( 'plumber-main-css', get_template_directory_uri() . '/dist/main.min.css', array( 'plumber-fonts-geist' ), $css_version, 'all' );
     
     if ( $should_load_lottie ) {
         wp_enqueue_script(
@@ -398,7 +399,7 @@ function plumber_async_noncritical_styles( $html, $handle, $href, $media ) {
         return $html;
     }
 
-    $async_handles = array( 'plumber-fonts', 'swiper-css' );
+    $async_handles = array( 'plumber-fonts-geist', 'swiper-css' );
     $should_async  = in_array( $handle, $async_handles, true ) || plumber_is_excluded_heavy_asset_src( (string) $href );
 
     if ( ! $should_async || empty( $href ) ) {
