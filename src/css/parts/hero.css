@@ -261,7 +261,7 @@
 
 @media (max-width: 768px) {
 	.hero-section {
-		padding: 180px 16px 210px;
+		padding: 180px 16px 180px;
 	}
 
 	.hero-section__images {

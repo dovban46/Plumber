@@ -86,5 +86,16 @@ if ( empty( $items ) ) {
 				</article>
 			<?php endforeach; ?>
 		</div>
+
+		<div class="why-choose__pagination" aria-label="<?php esc_attr_e( 'Why choose slider pagination', 'plumber' ); ?>">
+			<?php foreach ( $items as $index => $item ) : ?>
+				<button
+					class="why-choose__pagination-dot<?php echo 0 === $index ? ' is-active' : ''; ?>"
+					type="button"
+					aria-label="<?php echo esc_attr( sprintf( __( 'Go to slide %d', 'plumber' ), (int) $index + 1 ) ); ?>"
+					aria-current="<?php echo 0 === $index ? 'true' : 'false'; ?>"
+				></button>
+			<?php endforeach; ?>
+		</div>
 	</div>
 </section>

@@ -684,6 +684,28 @@
 	object-fit: cover;
 }
 
+@media (min-width: 1080px) {
+	.contact-section__map img,
+	.contact-section__map .contact-section__map-image {
+		object-position: calc(50% + 50px) center;
+	}
+}
+
+@media (max-width: 500px) {
+	.contact-section__map {
+		min-height: 580px !important;
+	}
+
+	.contact-section__map img,
+	.contact-section__map .contact-section__map-image {
+		width: 100%;
+		height: auto;
+		min-height: 0;
+		max-height: 580px;
+		object-fit: cover;
+	}
+}
+
 .contact-section__map .leaflet-container,
 .contact-section__map .wpgmza_map {
 	flex: 1 1 auto;
@@ -786,5 +808,10 @@
 	.contact-form-wrapper input::placeholder,
 	.contact-form-wrapper textarea::placeholder {
 		font-size: 16px;
+	}
+
+	.contact-section__map img,
+	.contact-section__map .contact-section__map-image {
+		object-position: calc(50% + 50px) center;
 	}
 }

@@ -191,11 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	const whyChooseSlider = document.querySelector('.why-choose__grid');
+	const whyChoosePagination = document.querySelector('.why-choose__pagination');
 
 	if (whyChooseSlider) {
 		let autoScrollInterval = null;
 		let resumeTimeout = null;
 		let whyChooseSlideIndex = 0;
+		const whyChooseDots = whyChoosePagination
+			? Array.from(whyChoosePagination.querySelectorAll('.why-choose__pagination-dot'))
+			: [];
 
 		const isMobileViewport = () => window.innerWidth < 768;
 		const clearTimers = () => {
@@ -210,6 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 
 		const getWhyChooseSlides = () => Array.from(whyChooseSlider.querySelectorAll('.why-choose-card'));
+		const updateWhyChoosePagination = () => {
+			if (!whyChooseDots.length) {
+				return;
+			}
+			whyChooseDots.forEach((dot, index) => {
+				const isActive = index === whyChooseSlideIndex;
+				dot.classList.toggle('is-active', isActive);
+				dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+			});
+		};
 
 		const getWhyChooseGapPx = () => {
 			const styles = window.getComputedStyle(whyChooseSlider);
@@ -251,6 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 			whyChooseSlideIndex = best;
+			updateWhyChoosePagination();
 		};
 
 		const startAutoScroll = () => {
@@ -266,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			whyChooseSlideIndex = 0;
 			whyChooseSlider.scrollTo({ left: 0, behavior: 'auto' });
+			updateWhyChoosePagination();
 
 			autoScrollInterval = window.setInterval(() => {
 				if (document.hidden) {
@@ -281,12 +297,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (whyChooseSlideIndex >= lastIndex) {
 					whyChooseSlideIndex = 0;
 					whyChooseSlider.scrollTo({ left: 0, behavior: 'smooth' });
+					updateWhyChoosePagination();
 					return;
 				}
 
 				whyChooseSlideIndex += 1;
 				const targetLeft = getWhyChooseScrollLeftForIndex(whyChooseSlideIndex);
 				whyChooseSlider.scrollTo({ left: targetLeft, behavior: 'smooth' });
+				updateWhyChoosePagination();
 			}, 3800);
 		};
 
@@ -306,6 +324,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		whyChooseSlider.addEventListener('touchend', pauseThenResume, { passive: true });
 		whyChooseSlider.addEventListener('pointerup', pauseThenResume, { passive: true });
 		whyChooseSlider.addEventListener('pointercancel', pauseThenResume, { passive: true });
+		whyChooseSlider.addEventListener('scroll', () => {
+			if (!isMobileViewport()) {
+				return;
+			}
+			syncWhyChooseIndexFromScroll();
+		}, { passive: true });
+
+		whyChooseDots.forEach((dot, index) => {
+			dot.addEventListener('click', () => {
+				clearTimers();
+				whyChooseSlideIndex = index;
+				const targetLeft = getWhyChooseScrollLeftForIndex(index);
+				whyChooseSlider.scrollTo({ left: targetLeft, behavior: 'smooth' });
+				updateWhyChoosePagination();
+				pauseThenResume();
+			});
+		});
 
 		document.addEventListener('visibilitychange', () => {
 			if (document.hidden) {
@@ -319,11 +354,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!isMobileViewport()) {
 				clearTimers();
 				whyChooseSlider.scrollLeft = 0;
+				whyChooseSlideIndex = 0;
+				updateWhyChoosePagination();
 				return;
 			}
 			preloaderFinished.then(() => startAutoScroll());
 		});
 
+		updateWhyChoosePagination();
 		preloaderFinished.then(() => startAutoScroll());
 	}
 
