@@ -121,6 +121,11 @@ add_action( 'after_setup_theme', 'plumber_content_width', 0 );
  */
 
 /**
+ * Primary nav walker (dropdown labels + chevron).
+ */
+require get_template_directory() . '/inc/class-plumber-walker-nav-menu.php';
+
+/**
  * Implement the Custom Header feature.
  */
 require get_template_directory() . '/inc/custom-header.php';

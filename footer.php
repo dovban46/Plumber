@@ -42,7 +42,9 @@ if ( ! empty( $footer_terms_link ) ) {
 				<div class="footer__brand">
 					<?php if ( ! empty( $footer_logo ) && ! empty( $footer_logo['url'] ) ) : ?>
 						<div class="footer__logo">
-							<img src="<?php echo esc_url( $footer_logo['url'] ); ?>" alt="<?php echo esc_attr( $footer_logo['alt'] ?? get_bloginfo( 'name' ) ); ?>">
+							<a class="footer__logo-link" href="<?php echo esc_url( home_url( '/' ) ); ?>" aria-label="<?php esc_attr_e( 'Go to homepage', 'plumber' ); ?>">
+								<img src="<?php echo esc_url( $footer_logo['url'] ); ?>" alt="<?php echo esc_attr( $footer_logo['alt'] ?? get_bloginfo( 'name' ) ); ?>">
+							</a>
 						</div>
 					<?php endif; ?>
 

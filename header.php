@@ -124,13 +124,18 @@
             <div class="header-menu-drawer">
                 <nav id="site-navigation" class="main-navigation" aria-label="<?php esc_attr_e( 'Primary menu', 'plumber' ); ?>">
                     <?php
-                    wp_nav_menu(
-                        array(
-                            'theme_location' => $menu_location,
-                            'menu_id'        => 'primary-menu',
-                            'container'      => false,
-                        )
+                    $plumber_primary_nav_args = array(
+                        'theme_location' => $menu_location,
+                        'menu_id'        => 'primary-menu',
+                        'menu_class'     => 'menu nav-menu',
+                        'container'      => false,
                     );
+
+                    if ( class_exists( 'Plumber_Walker_Nav_Menu' ) ) {
+                        $plumber_primary_nav_args['walker'] = new Plumber_Walker_Nav_Menu();
+                    }
+
+                    wp_nav_menu( $plumber_primary_nav_args );
                     ?>
                 </nav>
 
