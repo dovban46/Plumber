@@ -1212,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.reviews-section', '.our-services', '.faq-section', '.blog-page-section', '.single-blog-hero'];
+	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.reviews-section', '.our-services', '.faq-section', '.blog-page-section', '.single-blog-hero', '.single-our-services-top', '.single-our-services-problems'];
 	const instantRevealSections = ['.about-page-section', '.contact-page-section', '.services-page-section'];
 	const revealMultiSelectors = new Set(['.reviews-section']);
 
@@ -1255,6 +1255,57 @@ document.addEventListener('DOMContentLoaded', () => {
 		} else {
 			normalRevealElements.forEach((element) => element.classList.add('is-visible'));
 			instantRevealElements.forEach((element) => element.classList.add('is-visible'));
+		}
+	}
+
+	const problemsSections = document.querySelectorAll('.single-our-services-problems');
+	if (problemsSections.length) {
+		const prefersReducedMotion =
+			window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		const revealProblemsItems = (section) => {
+			if (!section) {
+				return;
+			}
+
+			const items = Array.from(section.querySelectorAll('.single-our-services-problems__item'));
+			if (!items.length) {
+				return;
+			}
+
+			if (prefersReducedMotion) {
+				items.forEach((item) => item.classList.add('is-visible'));
+				return;
+			}
+
+			items.forEach((item, index) => {
+				window.setTimeout(() => {
+					item.classList.add('is-visible');
+				}, index * 100);
+			});
+		};
+
+		if ('IntersectionObserver' in window) {
+			const problemsObserver = new IntersectionObserver(
+				(entries, observer) => {
+					entries.forEach((entry) => {
+						if (!entry.isIntersecting) {
+							return;
+						}
+						entry.target.classList.add('is-visible');
+						revealProblemsItems(entry.target);
+						observer.unobserve(entry.target);
+					});
+				},
+				{ threshold: 0.2 }
+			);
+
+			problemsSections.forEach((section) => problemsObserver.observe(section));
+		} else {
+			problemsSections.forEach((section) => {
+				section.classList.add('is-visible');
+				revealProblemsItems(section);
+			});
 		}
 	}
 

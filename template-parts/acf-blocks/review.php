@@ -5,7 +5,12 @@
  * @package Plumber
  */
 
-$review_section = get_sub_field( 'review_section' );
+$review_section = array();
+if ( isset( $args['review_section'] ) && is_array( $args['review_section'] ) ) {
+	$review_section = $args['review_section'];
+} else {
+	$review_section = get_sub_field( 'review_section' );
+}
 
 if ( ! $review_section || ! is_array( $review_section ) ) {
 	return;

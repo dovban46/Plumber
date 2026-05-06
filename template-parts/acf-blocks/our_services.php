@@ -172,14 +172,6 @@ if ( ! function_exists( 'plumber_output_our_services_slides' ) ) {
 		$display_text   = $custom_content ? wp_strip_all_tags( (string) $custom_content ) : wp_strip_all_tags( (string) get_the_excerpt() );
 		$display_text   = trim( preg_replace( '/\s+/', ' ', $display_text ) );
 
-		if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_substr' ) ) {
-			if ( mb_strlen( $display_text ) > 142 ) {
-				$display_text = rtrim( mb_substr( $display_text, 0, 142 ) ) . '...';
-			}
-		} elseif ( strlen( $display_text ) > 142 ) {
-			$display_text = rtrim( substr( $display_text, 0, 142 ) ) . '...';
-		}
-
 		$image_url = '';
 		$image_alt = '';
 

@@ -1,5 +1,10 @@
 <?php
-$faq_section = get_sub_field( 'faq_section' );
+$faq_section = array();
+if ( isset( $args['faq_section'] ) && is_array( $args['faq_section'] ) ) {
+	$faq_section = $args['faq_section'];
+} else {
+	$faq_section = get_sub_field( 'faq_section' );
+}
 
 if ( ! $faq_section || ! is_array( $faq_section ) ) {
 	return;
