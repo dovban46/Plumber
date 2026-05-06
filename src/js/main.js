@@ -883,6 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const ourServicesRoot = document.querySelector('.our-services');
 	const servicesPageSlider = document.querySelector('.services-page-slider.swiper');
+	const blogPageSlider = document.querySelector('.blog-page-slider.swiper');
+	const singleBlogOtherSlider = document.querySelector('.single-blog-other__slider.swiper');
 
 	const loadSwiper = (() => {
 		let loaderPromise = null;
@@ -1124,8 +1126,45 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	};
 
-	if (ourServicesRoot || servicesPageSlider) {
-		const sliderRoots = [ourServicesRoot, servicesPageSlider].filter(Boolean);
+	const initBlogPageSlider = () => {
+		if (!blogPageSlider || !window.Swiper) {
+			return;
+		}
+
+		new window.Swiper(blogPageSlider, {
+			slidesPerView: 'auto',
+			spaceBetween: 20,
+			grabCursor: true,
+			speed: 650,
+			loop: true,
+			autoplay: {
+				delay: 4000,
+				disableOnInteraction: false,
+				pauseOnMouseEnter: true,
+			},
+		});
+	};
+
+	const initSingleBlogOtherSlider = () => {
+		if (!singleBlogOtherSlider || !window.Swiper) {
+			return;
+		}
+
+		new window.Swiper(singleBlogOtherSlider, {
+			slidesPerView: 'auto',
+			spaceBetween: 20,
+			grabCursor: true,
+			speed: 650,
+			loop: true,
+			navigation: {
+				nextEl: '.single-blog-other__arrow--next',
+				prevEl: '.single-blog-other__arrow--prev',
+			},
+		});
+	};
+
+	if (ourServicesRoot || servicesPageSlider || blogPageSlider || singleBlogOtherSlider) {
+		const sliderRoots = [ourServicesRoot, servicesPageSlider, blogPageSlider, singleBlogOtherSlider].filter(Boolean);
 		let hasLoadedSwiper = false;
 
 		const bootSwiperFeatures = () => {
@@ -1138,6 +1177,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				.then(() => {
 					initOurServices();
 					initServicesPageSlider();
+					initBlogPageSlider();
+					initSingleBlogOtherSlider();
 				})
 				.catch(() => {
 					// Keep page interactive even if Swiper CDN is temporarily unavailable.
@@ -1145,11 +1186,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 
 		// Services page arrows must be interactive immediately on page load.
-		if (servicesPageSlider) {
+		if (servicesPageSlider || blogPageSlider || singleBlogOtherSlider) {
 			bootSwiperFeatures();
 		}
 
-		if (!servicesPageSlider && 'IntersectionObserver' in window) {
+		if (!servicesPageSlider && !blogPageSlider && !singleBlogOtherSlider && 'IntersectionObserver' in window) {
 			const swiperObserver = new IntersectionObserver(
 				(entries, observer) => {
 					const shouldInit = entries.some((entry) => entry.isIntersecting);
@@ -1171,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.reviews-section', '.our-services', '.faq-section'];
+	const revealSections = ['.hero-section', '.page-hero-section', '.about-section', '.about-page-section', '.contact-page-section', '.services-page-section', '.why-choose', '.reviews-section', '.our-services', '.faq-section', '.blog-page-section', '.single-blog-hero'];
 	const instantRevealSections = ['.about-page-section', '.contact-page-section', '.services-page-section'];
 	const revealMultiSelectors = new Set(['.reviews-section']);
 
@@ -1609,9 +1650,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const reviewForms = document.querySelectorAll('.review-page-form');
 	if (reviewForms.length) {
+		const fillReviewLocationByIp = (locationInput) => {
+			if (!locationInput || locationInput.value.trim() !== '') {
+				return;
+			}
+
+			const controller = new AbortController();
+			const timeoutId = window.setTimeout(() => controller.abort(), 2500);
+
+			fetch('https://ipapi.co/json/', { signal: controller.signal })
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error('Location request failed');
+					}
+					return response.json();
+				})
+				.then((payload) => {
+					if (!payload || typeof payload !== 'object') {
+						return;
+					}
+
+					const city = typeof payload.city === 'string' ? payload.city.trim() : '';
+					const country = typeof payload.country_name === 'string' ? payload.country_name.trim() : '';
+					const location = [city, country].filter(Boolean).join(', ');
+
+					if (location) {
+						locationInput.value = location;
+					}
+				})
+				.catch(() => {
+					// Silent fail: location is optional and should not block submit.
+				})
+				.finally(() => {
+					window.clearTimeout(timeoutId);
+				});
+		};
+
 		reviewForms.forEach((form) => {
 			const starsRoot = form.querySelector('[data-review-stars]');
 			const hiddenRatingInput = form.querySelector('.review-page-form__rating-input');
+			const locationInput = form.querySelector('.review-page-form__location-input');
 			const starButtons = starsRoot ? Array.from(starsRoot.querySelectorAll('.review-page-stars__star-button')) : [];
 			let selectedRating = 0;
 
@@ -1647,6 +1725,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					paintStars(selectedRating);
 				});
 			}
+
+			fillReviewLocationByIp(locationInput);
 		});
 	}
 

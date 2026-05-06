@@ -1,0 +1,327 @@
+.single-blog-hero {
+	padding: 16px 16px 72px;
+	opacity: 0;
+	transform: translateY(36px);
+	transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.single-blog-hero.is-visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.single-blog-hero__container {
+	width: min(1280px, 100%);
+	margin: 0 auto;
+}
+
+.single-blog-hero__media {
+	position: relative;
+	width: 100%;
+	max-width: 1280px;
+	height: 434px;
+	background: #171717bf;
+	border-radius: 12px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.single-blog-hero__bg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	z-index: 0;
+}
+
+.single-blog-hero__media::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: #171717bf;
+	z-index: 1;
+}
+
+.single-blog-hero__title {
+	position: relative;
+	z-index: 2;
+	margin: 0;
+	padding: 0 20px;
+	text-align: center;
+	text-transform: uppercase;
+	color: #fafafa;
+	font-size: 72px;
+	font-weight: 800;
+	line-height: 1.1;
+}
+
+.single-blog-content {
+	padding: 0 16px;
+}
+
+.single-blog-content__container {
+	width: min(1280px, 100%);
+	margin: 0 auto;
+	max-width: 900px;
+}
+
+.single-blog-content__back {
+	display: inline-flex;
+	margin-bottom: 16px;
+	color: #129ae5;
+	text-decoration: none;
+	font-family: "Work Sans", sans-serif;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 1.25;
+	transition: color 0.2s ease;
+}
+
+.single-blog-content__back:hover,
+.single-blog-content__back:focus-visible {
+	color: #7fcdfa;
+}
+
+.single-blog-content__date {
+	margin: 0 0 24px;
+	color: #ffffff;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 1.3;
+	font-family: "Work Sans", sans-serif;
+}
+
+.single-blog-content__body {
+	color: #f3f4f6;
+	font-size: 18px;
+	font-weight: 400;
+	line-height: 1.45;
+}
+
+.single-blog-content__body p {
+	margin: 0 0 8px;
+}
+
+.single-blog-content__body h2 {
+	margin: 24px 0 16px;
+	text-align: center;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.single-blog-content__body h3 {
+	margin: 24px 0 12px;
+	font-size: 20px;
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.single-blog-other {
+	margin-top: 100px;
+	padding: 0 16px;
+}
+
+.single-blog-other__container {
+	width: min(1280px, 100%);
+	margin: 0 auto;
+	position: relative;
+}
+
+.single-blog-other__head {
+	margin-bottom: 40px;
+}
+
+.single-blog-other__title {
+	margin: 0;
+	text-align: center;
+	text-transform: capitalize;
+	color: #f3f4f6;
+	font-size: 28px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.single-blog-other__controls {
+	position: absolute;
+	right: 0;
+	top: 8px;
+	display: flex;
+	gap: 16px;
+	margin: 0;
+}
+
+.single-blog-other__arrow {
+	width: 32px;
+	height: 32px;
+	border: 1px solid #23262e;
+	border-radius: 8px;
+	background: #0668a9;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.single-blog-other__arrow:hover,
+.single-blog-other__arrow:focus-visible {
+	background: #0b7fc9;
+	border-color: #129ae5;
+	transform: translateY(-1px);
+}
+
+.single-blog-other__arrow span {
+	width: 24px;
+	height: 24px;
+	display: block;
+	background: #f3f4f6;
+	-webkit-mask: var(--arrow-icon) center / contain no-repeat;
+	mask: var(--arrow-icon) center / contain no-repeat;
+}
+
+.single-blog-other__arrow--prev span {
+	transform: rotate(180deg);
+}
+
+.single-blog-other__slider {
+	overflow: hidden;
+}
+
+.single-blog-other__slider .swiper-slide {
+	width: 305px;
+}
+
+.single-blog-other-card__date {
+	margin: 0 0 16px;
+	color: #e0e3eb;
+	font-size: 18px;
+	font-weight: 500;
+	line-height: 1.3;
+	font-family: "Work Sans", sans-serif;
+}
+
+.single-blog-other-card__media {
+	position: relative;
+	display: block;
+	width: 305px;
+	height: 167px;
+	border-radius: 12px;
+	overflow: hidden;
+	text-decoration: none;
+	background: #23262e;
+	transition: transform 0.25s ease;
+}
+
+.single-blog-other-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 0.25s ease;
+}
+
+.single-blog-other-card__media::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(23, 23, 23, 0.1) 20%, rgba(23, 23, 23, 0.8) 100%);
+}
+
+.single-blog-other-card__title {
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	bottom: 8px;
+	z-index: 2;
+	margin: 0;
+	text-transform: capitalize;
+	color: #f3f4f6;
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.2;
+	transition: color 0.2s ease;
+}
+
+.single-blog-other-card__media:hover,
+.single-blog-other-card__media:focus-visible {
+	transform: translateY(-2px);
+}
+
+.single-blog-other-card__media:hover img,
+.single-blog-other-card__media:focus-visible img {
+	transform: scale(1.03);
+}
+
+.single-blog-other-card__media:hover .single-blog-other-card__title,
+.single-blog-other-card__media:focus-visible .single-blog-other-card__title {
+	color: #7fcdfa;
+}
+
+.single-blog-cta {
+	margin-top: 100px;
+}
+
+.single-blog-cta__container {
+	width: min(1280px, calc(100% - 32px));
+	margin: 0 auto;
+}
+
+@media (max-width: 991px) {
+	.single-blog-hero__title {
+		font-size: 56px;
+	}
+}
+
+@media (max-width: 768px) {
+	.single-blog-hero {
+		padding: 32px 16px 72px;
+	}
+
+	.single-blog-hero__title {
+		font-size: 36px;
+		text-transform: capitalize;
+	}
+
+	.single-blog-other__head {
+		margin-bottom: 24px;
+	}
+
+	.single-blog-other__controls {
+		position: static;
+		margin-top: 24px;
+		margin-bottom: 0;
+		justify-content: center;
+	}
+
+	.single-blog-other__title {
+		font-size: 28px;
+	}
+
+	.single-blog-other__slider .swiper-slide,
+	.single-blog-other-card__media {
+		width: calc(100vw - 32px);
+	}
+
+	.single-blog-other-card__media {
+		height: 167px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.single-blog-hero {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+
+	.single-blog-other__arrow,
+	.single-blog-other-card__media,
+	.single-blog-other-card__media img,
+	.single-blog-other-card__title {
+		transition: none;
+	}
+}

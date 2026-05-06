@@ -290,6 +290,7 @@ $star_icon_url = get_template_directory_uri() . '/assets/images/Star.svg';
 					<?php wp_nonce_field( 'plumber_review_submit', 'plumber_review_nonce' ); ?>
 					<input type="hidden" name="plumber_review_submit" value="1">
 					<input type="hidden" name="review_rating" class="review-page-form__rating-input" value="0">
+					<input type="hidden" name="review_location" class="review-page-form__location-input" value="">
 
 					<div class="review-page-stars review-page-stars--input" data-review-stars>
 						<?php for ( $s = 1; $s <= 5; $s += 1 ) : ?>
@@ -315,11 +316,6 @@ $star_icon_url = get_template_directory_uri() . '/assets/images/Star.svg';
 						<span><?php esc_html_e( 'Your email', 'plumber' ); ?></span>
 						<input type="email" name="review_email" required placeholder="<?php esc_attr_e( 'Tell us your email', 'plumber' ); ?>">
 					</label>
-					<label class="review-page-form__field">
-						<span><?php esc_html_e( 'Your city/country', 'plumber' ); ?></span>
-						<input type="text" name="review_location" placeholder="<?php esc_attr_e( 'Chicago, USA', 'plumber' ); ?>">
-					</label>
-
 					<button type="submit" class="review-page-form__submit"><?php esc_html_e( 'Submit Review', 'plumber' ); ?></button>
 				</form>
 			</div>

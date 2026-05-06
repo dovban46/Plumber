@@ -240,7 +240,7 @@
 }
 
 .review-page-card {
-	padding: 24px 0;
+	padding: 16px 0;
 	background: transparent;
 	border: 0;
 }
@@ -259,6 +259,8 @@
 	max-width: 100%;
 	display: grid;
 	gap: 16px;
+	align-content: start;
+	align-self: start;
 }
 
 .review-page-card__meta p {
@@ -284,7 +286,7 @@
 }
 
 .review-page-card__content .review-page-stars {
-	margin-bottom: 24px;
+	margin-bottom: 16px;
 }
 
 .review-page-card__title {
@@ -388,7 +390,7 @@
 
 	.review-page-card__layout {
 		grid-template-columns: 1fr;
-		gap: 24px;
+		gap: 16px;
 	}
 
 	.review-page-pagination{
