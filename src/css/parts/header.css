@@ -147,8 +147,9 @@
 	display: block;
 	width: 32px;
 	height: 32px;
-	background: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	transition: transform 0.25s ease;
+	object-fit: contain;
+	transition: transform 0.25s ease, filter 0.22s ease;
+	filter: brightness(0) saturate(100%) invert(96%) sepia(8%) saturate(130%) hue-rotate(188deg) brightness(102%) contrast(94%);
 }
 
 #primary-menu > li:not(.menu-item-has-children) > a.menu-item__text-link:hover,
@@ -177,7 +178,7 @@
 	margin: 0;
 	border-radius: 8px;
 	background: #1e2128;
-	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+	box-shadow: none;
 	list-style: none;
 	opacity: 0;
 	visibility: hidden;
@@ -207,6 +208,11 @@
 		opacity: 1;
 		visibility: visible;
 		pointer-events: auto;
+	}
+
+	.main-navigation .sub-menu.has-open-branch {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
 	}
 
 	/* Плавне підкреслення по повній ширині тексту (gradient, без обрізання flex/max-width) */
@@ -275,6 +281,10 @@
 	padding: 0;
 }
 
+.main-navigation .sub-menu > li.menu-item-has-children {
+	position: static;
+}
+
 .main-navigation .sub-menu > li:not(.menu-item-has-children) > a.menu-item__text-link {
 	box-sizing: border-box;
 	display: flex;
@@ -331,10 +341,8 @@
 	width: 24px;
 	height: 24px;
 	flex-shrink: 0;
-	background-color: currentColor;
-	-webkit-mask: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	mask: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	transition: transform 0.25s ease, background-color 0.22s ease;
+	object-fit: contain;
+	transition: transform 0.25s ease, filter 0.22s ease;
 }
 
 /* Hover: лише колір + підкреслення (десктоп), без зміни фону */
@@ -348,6 +356,17 @@
 .main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row:focus-within .menu-item__text-link,
 .main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row:focus-within .menu-item__submenu-toggle {
 	color: #4dbff2;
+}
+
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:hover,
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:focus-visible {
+	color: #4dbff2;
+}
+
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:hover .menu-item__chevron,
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:focus-visible .menu-item__chevron,
+.main-navigation .sub-menu > li.menu-item-has-children.is-open > .menu-item__row .menu-item__submenu-toggle .menu-item__chevron {
+	filter: brightness(0) saturate(100%) invert(75%) sepia(49%) saturate(1104%) hue-rotate(164deg) brightness(98%) contrast(92%);
 }
 
 .main-navigation .sub-menu > li.menu-item-has-children.is-open > .menu-item__row .menu-item__text-link,
@@ -367,6 +386,8 @@
 	top: 0;
 	left: 100%;
 	margin: 0;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 12px;
 }
 
 
@@ -455,11 +476,11 @@ body.mobile-menu-open {
 		left: auto;
 		z-index: auto;
 		max-height: 0;
-		opacity: 0;
-		visibility: hidden;
 		overflow: hidden;
 		pointer-events: none;
-		transition: max-height 0.32s ease, opacity 0.24s ease;
+		opacity: 0;
+		visibility: hidden;
+		transition: max-height 0.38s ease, opacity 0.22s ease, visibility 0s linear 0.38s;
 	}
 
 	/* Мобілка: миттєве закриття сусідніх accordion (узгоджено з main.js для перемикань) */
@@ -499,27 +520,31 @@ body.mobile-menu-open {
 
 	/* Мобілка: верхній рівень з підменю — акордеон по кліку */
 	#primary-menu > li.menu-item-has-children.is-open > .sub-menu {
-		opacity: 1;
-		visibility: visible;
 		pointer-events: auto;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding: 0;
 		background: transparent;
 		border-radius: 0;
-		max-height: 1200px;
+		max-height: var(--submenu-max-height, 1200px);
+		overflow: visible;
+		opacity: 1;
+		visibility: visible;
+		transition: max-height 0.38s ease, opacity 0.22s ease;
 	}
 
 	.main-navigation .sub-menu li.menu-item-has-children.is-open > .sub-menu {
-		opacity: 1;
-		visibility: visible;
 		pointer-events: auto;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding: 0;
 		background: transparent;
 		border-radius: 0;
-		max-height: 1200px;
+		max-height: var(--submenu-max-height, 1200px);
+		overflow: visible;
+		opacity: 1;
+		visibility: visible;
+		transition: max-height 0.38s ease, opacity 0.22s ease;
 	}
 
 	.main-navigation .sub-menu > li:not(.menu-item-has-children) > a.menu-item__text-link {

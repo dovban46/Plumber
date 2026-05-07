@@ -113,7 +113,7 @@ class Plumber_Walker_Nav_Menu extends Walker_Nav_Menu {
 			$item_output .= isset( $args->link_after ) ? $args->link_after : '';
 			$item_output .= '</a>';
 			$item_output .= '<button type="button" class="menu-item__submenu-toggle" aria-expanded="false" aria-label="' . esc_attr__( 'Toggle submenu', 'plumber' ) . '">';
-			$item_output .= '<span class="menu-item__chevron" aria-hidden="true"></span>';
+			$item_output .= '<img class="menu-item__chevron" src="' . esc_url( get_template_directory_uri() . '/assets/images/right-rounded.svg' ) . '" alt="" aria-hidden="true" width="32" height="32" loading="lazy" decoding="async">';
 			$item_output .= '</button>';
 			$item_output .= '</div>';
 		}

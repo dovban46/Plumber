@@ -2828,11 +2828,14 @@ body.plumber-page-our-services-template .site-main {
 	display: block;
 	width: 32px;
 	height: 32px;
-	background: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	-webkit-transition: -webkit-transform 0.25s ease;
-	transition: -webkit-transform 0.25s ease;
-	transition: transform 0.25s ease;
-	transition: transform 0.25s ease, -webkit-transform 0.25s ease;
+	-o-object-fit: contain;
+	   object-fit: contain;
+	-webkit-transition: -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
+	transition: -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
+	transition: transform 0.25s ease, filter 0.22s ease;
+	transition: transform 0.25s ease, filter 0.22s ease, -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
+	-webkit-filter: brightness(0) saturate(100%) invert(96%) sepia(8%) saturate(130%) hue-rotate(188deg) brightness(102%) contrast(94%);
+	        filter: brightness(0) saturate(100%) invert(96%) sepia(8%) saturate(130%) hue-rotate(188deg) brightness(102%) contrast(94%);
 }
 
 #primary-menu > li:not(.menu-item-has-children) > a.menu-item__text-link:hover,
@@ -2868,8 +2871,8 @@ body.plumber-page-our-services-template .site-main {
 	margin: 0;
 	border-radius: 8px;
 	background: #1e2128;
-	-webkit-box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-	        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+	-webkit-box-shadow: none;
+	        box-shadow: none;
 	list-style: none;
 	opacity: 0;
 	visibility: hidden;
@@ -2904,6 +2907,11 @@ body.plumber-page-our-services-template .site-main {
 		opacity: 1;
 		visibility: visible;
 		pointer-events: auto;
+	}
+
+	.main-navigation .sub-menu.has-open-branch {
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
 	}
 
 	/* Плавне підкреслення по повній ширині тексту (gradient, без обрізання flex/max-width) */
@@ -2980,6 +2988,10 @@ body.plumber-page-our-services-template .site-main {
 	display: block;
 	margin: 0;
 	padding: 0;
+}
+
+.main-navigation .sub-menu > li.menu-item-has-children {
+	position: static;
 }
 
 .main-navigation .sub-menu > li:not(.menu-item-has-children) > a.menu-item__text-link {
@@ -3062,13 +3074,12 @@ body.plumber-page-our-services-template .site-main {
 	height: 24px;
 	-ms-flex-negative: 0;
 	    flex-shrink: 0;
-	background-color: currentColor;
-	-webkit-mask: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	mask: url("../assets/images/right-rounded.svg") center / contain no-repeat;
-	-webkit-transition: background-color 0.22s ease, -webkit-transform 0.25s ease;
-	transition: background-color 0.22s ease, -webkit-transform 0.25s ease;
-	transition: transform 0.25s ease, background-color 0.22s ease;
-	transition: transform 0.25s ease, background-color 0.22s ease, -webkit-transform 0.25s ease;
+	-o-object-fit: contain;
+	   object-fit: contain;
+	-webkit-transition: -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
+	transition: -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
+	transition: transform 0.25s ease, filter 0.22s ease;
+	transition: transform 0.25s ease, filter 0.22s ease, -webkit-transform 0.25s ease, -webkit-filter 0.22s ease;
 }
 
 /* Hover: лише колір + підкреслення (десктоп), без зміни фону */
@@ -3082,6 +3093,18 @@ body.plumber-page-our-services-template .site-main {
 .main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row:focus-within .menu-item__text-link,
 .main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row:focus-within .menu-item__submenu-toggle {
 	color: #4dbff2;
+}
+
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:hover,
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:focus-visible {
+	color: #4dbff2;
+}
+
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:hover .menu-item__chevron,
+.main-navigation .sub-menu > li.menu-item-has-children > .menu-item__row .menu-item__submenu-toggle:focus-visible .menu-item__chevron,
+.main-navigation .sub-menu > li.menu-item-has-children.is-open > .menu-item__row .menu-item__submenu-toggle .menu-item__chevron {
+	-webkit-filter: brightness(0) saturate(100%) invert(75%) sepia(49%) saturate(1104%) hue-rotate(164deg) brightness(98%) contrast(92%);
+	        filter: brightness(0) saturate(100%) invert(75%) sepia(49%) saturate(1104%) hue-rotate(164deg) brightness(98%) contrast(92%);
 }
 
 .main-navigation .sub-menu > li.menu-item-has-children.is-open > .menu-item__row .menu-item__text-link,
@@ -3101,6 +3124,8 @@ body.plumber-page-our-services-template .site-main {
 	top: 0;
 	left: 100%;
 	margin: 0;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 12px;
 }
 
 
@@ -3215,12 +3240,12 @@ body.mobile-menu-open {
 		left: auto;
 		z-index: auto;
 		max-height: 0;
-		opacity: 0;
-		visibility: hidden;
 		overflow: hidden;
 		pointer-events: none;
-		-webkit-transition: max-height 0.32s ease, opacity 0.24s ease;
-		transition: max-height 0.32s ease, opacity 0.24s ease;
+		opacity: 0;
+		visibility: hidden;
+		-webkit-transition: max-height 0.38s ease, opacity 0.22s ease, visibility 0s linear 0.38s;
+		transition: max-height 0.38s ease, opacity 0.22s ease, visibility 0s linear 0.38s;
 	}
 
 	/* Мобілка: миттєве закриття сусідніх accordion (узгоджено з main.js для перемикань) */
@@ -3270,27 +3295,33 @@ body.mobile-menu-open {
 
 	/* Мобілка: верхній рівень з підменю — акордеон по кліку */
 	#primary-menu > li.menu-item-has-children.is-open > .sub-menu {
-		opacity: 1;
-		visibility: visible;
 		pointer-events: auto;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding: 0;
 		background: transparent;
 		border-radius: 0;
-		max-height: 1200px;
+		max-height: var(--submenu-max-height, 1200px);
+		overflow: visible;
+		opacity: 1;
+		visibility: visible;
+		-webkit-transition: max-height 0.38s ease, opacity 0.22s ease;
+		transition: max-height 0.38s ease, opacity 0.22s ease;
 	}
 
 	.main-navigation .sub-menu li.menu-item-has-children.is-open > .sub-menu {
-		opacity: 1;
-		visibility: visible;
 		pointer-events: auto;
 		margin-top: 0;
 		margin-bottom: 0;
 		padding: 0;
 		background: transparent;
 		border-radius: 0;
-		max-height: 1200px;
+		max-height: var(--submenu-max-height, 1200px);
+		overflow: visible;
+		opacity: 1;
+		visibility: visible;
+		-webkit-transition: max-height 0.38s ease, opacity 0.22s ease;
+		transition: max-height 0.38s ease, opacity 0.22s ease;
 	}
 
 	.main-navigation .sub-menu > li:not(.menu-item-has-children) > a.menu-item__text-link {
@@ -5840,7 +5871,7 @@ body.mobile-menu-open {
 }
 
 .services-page-section {
-	padding: 54px 0;
+	padding: 0 0 80px;
 	opacity: 0;
 	-webkit-transform: translateY(36px);
 	        transform: translateY(36px);
@@ -6098,7 +6129,7 @@ body.mobile-menu-open {
 
 @media (max-width: 768px) {
 	.services-page-section {
-		padding: 72px 0 0;
+		padding: 0 0 72px;
 	}
 
 	.services-page-slider .swiper-slide {

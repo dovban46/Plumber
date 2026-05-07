@@ -169,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	let navHoverCloseTimer = null;
 	let navHoverAbort = null;
+	const nestedCloseTimers = new WeakMap();
 
 	const clearNavHoverTimer = () => {
 		if (navHoverCloseTimer) {
@@ -182,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		navHoverCloseTimer = window.setTimeout(() => {
 			li.classList.remove('is-menu-hovered');
 			navHoverCloseTimer = null;
-		}, 220);
+		}, 360);
 	};
 
 	const setupTopLevelMenuHover = () => {
@@ -197,6 +198,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		navHoverAbort = new AbortController();
 		const { signal } = navHoverAbort;
+		const syncNestedPanelShape = (parentList) => {
+			if (!(parentList instanceof HTMLElement) || !parentList.classList.contains('sub-menu')) {
+				return;
+			}
+			const hasOpenBranch = Boolean(parentList.querySelector(':scope > li.menu-item-has-children.is-open'));
+			parentList.classList.toggle('has-open-branch', hasOpenBranch);
+		};
+
+		const closeSiblingSubmenus = (currentLi) => {
+			if (!(currentLi instanceof HTMLElement)) {
+				return;
+			}
+			const parentList = currentLi.parentElement;
+			if (!parentList) {
+				return;
+			}
+
+			Array.from(parentList.children).forEach((sibling) => {
+				if (sibling === currentLi || !sibling.matches('li.menu-item-has-children')) {
+					return;
+				}
+
+				sibling.classList.remove('is-open');
+				sibling.classList.remove('menu-item--hash-submenu-pinned');
+
+				const siblingBtn = sibling.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
+				if (siblingBtn) {
+					siblingBtn.setAttribute('aria-expanded', 'false');
+				}
+			});
+
+			syncNestedPanelShape(parentList);
+		};
+
+		const clearNestedCloseTimer = (li) => {
+			const timer = nestedCloseTimers.get(li);
+			if (timer) {
+				window.clearTimeout(timer);
+				nestedCloseTimers.delete(li);
+			}
+		};
+
+		const scheduleNestedItemClose = (li) => {
+			clearNestedCloseTimer(li);
+			const timer = window.setTimeout(() => {
+				if (li.classList.contains('menu-item--hash-submenu-pinned')) {
+					nestedCloseTimers.delete(li);
+					return;
+				}
+				li.classList.remove('is-open');
+				const toggleBtn = li.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
+				if (toggleBtn) {
+					toggleBtn.setAttribute('aria-expanded', 'false');
+				}
+				if (li.parentElement) {
+					syncNestedPanelShape(li.parentElement);
+				}
+				nestedCloseTimers.delete(li);
+			}, 340);
+			nestedCloseTimers.set(li, timer);
+		};
 
 		primaryNav.querySelectorAll('#primary-menu > li.menu-item-has-children').forEach((li) => {
 			const sub = li.querySelector(':scope > ul.sub-menu');
@@ -251,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			);
 		});
 
-		// Desktop: items with href "#" should also open submenu on hover.
+		// Desktop: any item with children opens nested submenu on hover.
 		primaryNav.querySelectorAll('li.menu-item-has-children').forEach((li) => {
 			const directLink = li.querySelector(':scope > .menu-item__row > a.menu-item__text-link, :scope > a.menu-item__text-link');
 			const directSubMenu = li.querySelector(':scope > ul.sub-menu');
@@ -260,14 +322,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const href = (directLink.getAttribute('href') || '').trim();
-			if (href !== '#') {
-				return;
-			}
+			const isNestedLevel = Boolean(li.parentElement && li.parentElement.classList.contains('sub-menu'));
 
 			li.addEventListener(
 				'mouseenter',
 				() => {
+					clearNestedCloseTimer(li);
+					if (isNestedLevel) {
+						closeSiblingSubmenus(li);
+					}
 					li.classList.add('is-open');
 					const toggleBtn = li.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
 					if (toggleBtn) {
@@ -278,6 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (isTopLevel) {
 						li.classList.add('is-menu-hovered');
 					}
+					if (isNestedLevel && li.parentElement) {
+						syncNestedPanelShape(li.parentElement);
+					}
 				},
 				{ signal },
 			);
@@ -285,18 +351,21 @@ document.addEventListener('DOMContentLoaded', () => {
 			li.addEventListener(
 				'mouseleave',
 				() => {
-					if (li.classList.contains('menu-item--hash-submenu-pinned')) {
-						return;
-					}
-					li.classList.remove('is-open');
-					const toggleBtn = li.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
-					if (toggleBtn) {
-						toggleBtn.setAttribute('aria-expanded', 'false');
-					}
-
 					const isTopLevel = Boolean(li.parentElement && li.parentElement.id === 'primary-menu');
 					if (isTopLevel) {
+						if (li.classList.contains('menu-item--hash-submenu-pinned')) {
+							return;
+						}
+						li.classList.remove('is-open');
+						const toggleBtn = li.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
+						if (toggleBtn) {
+							toggleBtn.setAttribute('aria-expanded', 'false');
+						}
 						scheduleTopLevelMenuClose(li);
+						return;
+					}
+					if (isNestedLevel) {
+						scheduleNestedItemClose(li);
 					}
 				},
 				{ signal },
@@ -321,6 +390,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		primaryNav.querySelectorAll('li.is-open').forEach((openLi) => {
 			openLi.classList.remove('is-open');
+		});
+		primaryNav.querySelectorAll('.sub-menu.has-open-branch').forEach((subMenu) => {
+			subMenu.classList.remove('has-open-branch');
 		});
 
 		primaryNav.querySelectorAll('.menu-item__submenu-toggle').forEach((btn) => {
@@ -347,38 +419,77 @@ document.addEventListener('DOMContentLoaded', () => {
 			setupTopLevelMenuHover();
 
 			primaryNav.addEventListener('click', (event) => {
+				const isMobile = () => window.innerWidth <= 768;
+
+				const getDirectSubmenu = (li) => li
+					? Array.from(li.children).find((c) => c instanceof HTMLElement && c.classList.contains('sub-menu')) || null
+					: null;
+
+				/* Встановлює --submenu-max-height на прямому sub-menu елемента li.
+				   Якщо forceExpand=true — ігнорує поточний стан і бере повний scrollHeight. */
+				const setSubmenuHeight = (li, forceExpand) => {
+					if (!isMobile() || !li) {
+						return;
+					}
+					const sub = getDirectSubmenu(li);
+					if (!sub) {
+						return;
+					}
+					/* Тимчасово знімаємо overflow clip щоб scrollHeight вернув реальну висоту */
+					const prevOverflow = sub.style.overflow;
+					if (forceExpand) {
+						sub.style.overflow = 'visible';
+					}
+					const h = sub.scrollHeight;
+					if (forceExpand) {
+						sub.style.overflow = prevOverflow;
+					}
+					sub.style.setProperty('--submenu-max-height', `${h}px`);
+				};
+
+				/* Оновлює висоти від поточного li до кореня (Services -> top) */
+				const propagateHeightsUp = (li) => {
+					if (!isMobile()) {
+						return;
+					}
+					let cur = li;
+					while (cur && cur.matches && cur.matches('li.menu-item-has-children')) {
+						setSubmenuHeight(cur, true);
+						const parentList = cur.parentElement;
+						cur = parentList ? parentList.closest('li.menu-item-has-children') : null;
+					}
+				};
+
 				const toggleItemOpenState = (parentLi, forceOpen = null) => {
 					const parentList = parentLi.parentElement;
 					const toggleBtn = parentLi.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
 					const willOpen = forceOpen === null ? !parentLi.classList.contains('is-open') : Boolean(forceOpen);
+					const syncNestedPanelShape = () => {
+						if (!(parentList instanceof HTMLElement) || !parentList.classList.contains('sub-menu')) {
+							return;
+						}
+						const hasOpenBranch = Boolean(parentList.querySelector(':scope > li.menu-item-has-children.is-open'));
+						parentList.classList.toggle('has-open-branch', hasOpenBranch);
+					};
 
+					/* Закриваємо сусідніх */
 					if (parentList) {
 						Array.from(parentList.children).forEach((sibling) => {
 							if (sibling === parentLi || !sibling.matches('li.menu-item-has-children')) {
 								return;
 							}
-
-							const siblingSub = sibling.querySelector(':scope > ul.sub-menu');
-							if (window.innerWidth <= 768 && siblingSub) {
-								siblingSub.classList.add('sub-menu--no-animate');
-							}
-
 							sibling.classList.remove('is-open');
 							sibling.classList.remove('menu-item--hash-submenu-pinned');
-
 							const siblingBtn = sibling.querySelector(':scope > .menu-item__row > .menu-item__submenu-toggle');
 							if (siblingBtn) {
 								siblingBtn.setAttribute('aria-expanded', 'false');
 							}
-
-							if (window.innerWidth <= 768 && siblingSub) {
-								window.requestAnimationFrame(() => {
-									window.requestAnimationFrame(() => {
-										siblingSub.classList.remove('sub-menu--no-animate');
-									});
-								});
-							}
 						});
+					}
+
+					/* Встановлюємо висоту ДО toggle (для відкриття) */
+					if (willOpen && isMobile()) {
+						setSubmenuHeight(parentLi, false);
 					}
 
 					parentLi.classList.toggle('is-open', willOpen);
@@ -390,6 +501,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 					if (window.innerWidth > 768 && parentLi.parentElement && parentLi.parentElement.id === 'primary-menu') {
 						parentLi.classList.toggle('is-menu-hovered', willOpen);
+					}
+					syncNestedPanelShape();
+
+					/* Після toggle — propagate висоти вгору */
+					if (isMobile()) {
+						window.requestAnimationFrame(() => {
+							propagateHeightsUp(parentLi);
+						});
 					}
 				};
 
@@ -403,7 +522,17 @@ document.addEventListener('DOMContentLoaded', () => {
 						return;
 					}
 
-					toggleItemOpenState(parentLi);
+					const nestedTimer = nestedCloseTimers.get(parentLi);
+					if (nestedTimer) {
+						window.clearTimeout(nestedTimer);
+						nestedCloseTimers.delete(parentLi);
+					}
+
+					const willOpen = !parentLi.classList.contains('is-open');
+					toggleItemOpenState(parentLi, willOpen);
+					if (window.innerWidth > 768) {
+						parentLi.classList.toggle('menu-item--hash-submenu-pinned', willOpen);
+					}
 					return;
 				}
 
