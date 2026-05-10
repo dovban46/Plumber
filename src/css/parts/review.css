@@ -63,6 +63,18 @@
 	position: relative;
 }
 
+.reviews-section__viewport::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 200px;
+	height: 100%;
+	background: linear-gradient(to right, transparent, #000000);
+	pointer-events: none;
+	z-index: 2;
+}
+
 .reviews-section__track {
 	display: flex;
 	flex-direction: row;
@@ -221,6 +233,10 @@
 		max-width: none;
 		padding: 0;
 		box-sizing: border-box;
+	}
+
+	.reviews-section__viewport::after {
+		display: none;
 	}
 
 	.reviews-section__track {
