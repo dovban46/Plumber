@@ -16,6 +16,11 @@
 	flex: 0 0 auto;
 }
 
+/* Лого всередині мобільного drawer — приховане на десктопі */
+.header-branding-mobile {
+	display: none;
+}
+
 .header-menu-drawer {
 	flex: 1 1 auto;
 	display: flex;
@@ -527,7 +532,7 @@ body.mobile-menu-open {
 		background: transparent;
 		border-radius: 0;
 		max-height: var(--submenu-max-height, 1200px);
-		overflow: visible;
+		overflow: hidden;
 		opacity: 1;
 		visibility: visible;
 		transition: max-height 0.38s ease, opacity 0.22s ease;
@@ -541,7 +546,7 @@ body.mobile-menu-open {
 		background: transparent;
 		border-radius: 0;
 		max-height: var(--submenu-max-height, 1200px);
-		overflow: visible;
+		overflow: hidden;
 		opacity: 1;
 		visibility: visible;
 		transition: max-height 0.38s ease, opacity 0.22s ease;
@@ -573,8 +578,31 @@ body.mobile-menu-open {
 	.header-actions {
 		display: block;
 		width: 100%;
-		margin-top: 100px;
+		margin-top: 40px;
 		position: static;
+	}
+
+	/* Лого всередині drawer: показується тільки на мобілці */
+	.header-branding-mobile {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		width: 100%;
+		padding: 16px 0;
+		margin-bottom: 8px;
+		border-bottom: 1px solid rgb(255 255 255 / 0.06);
+	}
+
+	.header-branding-mobile .header-logo-link {
+		display: inline-flex;
+		align-items: center;
+		text-decoration: none;
+	}
+
+	.header-branding-mobile .header-logo {
+		height: 50px;
+		width: auto;
+		display: block;
 	}
 
 	.header-menu-drawer {
@@ -584,7 +612,7 @@ body.mobile-menu-open {
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
-		padding: 110px 24px 32px 16px;
+		padding: 16px 24px 32px 16px;
 		box-sizing: border-box;
 		background: #171717;
 		overflow-y: auto;
@@ -600,6 +628,19 @@ body.mobile-menu-open {
 		z-index: 10001;
 	}
 
+	/* Коли меню відкрите: оригінальне лого ховається за drawer */
+	body.mobile-menu-open .header-branding {
+		z-index: 9999;
+	}
+
+	/* Кнопка-бургер/X завжди зверху */
+	body.mobile-menu-open .menu-toggle {
+		position: fixed;
+		top: 24px;
+		right: 16px;
+		z-index: 10002;
+	}
+
 	.header-inner.is-menu-open .header-menu-drawer {
 		justify-content: flex-start;
 		gap: 0;
@@ -607,6 +648,8 @@ body.mobile-menu-open {
 		opacity: 1;
 		visibility: visible;
 		pointer-events: auto;
+		/* Лого тепер всередині drawer, тому менший top-padding */
+		padding-top: 0;
 	}
 
 	.header-inner.is-menu-open .header-button {

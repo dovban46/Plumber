@@ -145,8 +145,20 @@ if ( ! empty( $footer_terms_link ) ) {
 					</div>
 				<?php endif; ?>
 
-				<?php if ( $footer_bottom_note ) : ?>
-					<div class="footer__note"><?php echo wp_kses( $footer_bottom_note, $allowed_break_html ); ?></div>
+				<?php if ( ! empty( $footer_bottom_note ) ) : ?>
+					<div class="footer__note">
+						<?php if ( is_array( $footer_bottom_note ) && ! empty( $footer_bottom_note['url'] ) ) : ?>
+							<a
+								class="footer__note-link"
+								href="<?php echo esc_url( $footer_bottom_note['url'] ); ?>"
+								<?php echo ! empty( $footer_bottom_note['target'] ) ? ' target="' . esc_attr( $footer_bottom_note['target'] ) . '"' : ''; ?>
+							>
+								<?php echo esc_html( ! empty( $footer_bottom_note['title'] ) ? $footer_bottom_note['title'] : $footer_bottom_note['url'] ); ?>
+							</a>
+						<?php elseif ( is_string( $footer_bottom_note ) ) : ?>
+							<?php echo wp_kses( $footer_bottom_note, $allowed_break_html ); ?>
+						<?php endif; ?>
+					</div>
 				<?php endif; ?>
 
 				<?php if ( ! empty( $footer_terms_link ) ) : ?>

@@ -136,7 +136,8 @@
 	background: #0f131b;
 }
 
-.our-services-slide__media img {
+.our-services-slide__media img,
+.our-services-slide__media video {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;

@@ -23,9 +23,15 @@ $services_query = new WP_Query(
 <section class="services-page-section" aria-label="<?php esc_attr_e( 'Services page section', 'plumber' ); ?>">
 	<div class="services-page-section__container">
 		<div class="services-page-section__slider-wrap">
-			<div class="services-page-section__slider-controls">
-				<button class="services-page-section__arrow services-page-section__arrow--prev" type="button" aria-label="<?php esc_attr_e( 'Previous service', 'plumber' ); ?>"></button>
-				<button class="services-page-section__arrow services-page-section__arrow--next" type="button" aria-label="<?php esc_attr_e( 'Next service', 'plumber' ); ?>"></button>
+			<div class="services-page-section__head">
+				<div class="services-page-section__slider-controls">
+					<button class="services-page-section__arrow services-page-section__arrow--prev" type="button" aria-label="<?php esc_attr_e( 'Previous service', 'plumber' ); ?>">
+						<span style="--arrow-icon:url('<?php echo esc_url( get_template_directory_uri() . '/assets/images/right-rounded.svg' ); ?>')" aria-hidden="true"></span>
+					</button>
+					<button class="services-page-section__arrow services-page-section__arrow--next" type="button" aria-label="<?php esc_attr_e( 'Next service', 'plumber' ); ?>">
+						<span style="--arrow-icon:url('<?php echo esc_url( get_template_directory_uri() . '/assets/images/right-rounded.svg' ); ?>')" aria-hidden="true"></span>
+					</button>
+				</div>
 			</div>
 
 			<?php if ( $services_query->have_posts() ) : ?>
@@ -37,43 +43,49 @@ $services_query = new WP_Query(
 
 							$custom_title   = get_field( 'title' );
 							$custom_image   = get_field( 'image' );
+							$custom_video   = get_field( 'video' );
 							$custom_content = get_field( 'content' );
 							$display_title  = $custom_title ? $custom_title : get_the_title();
-							$display_text   = $custom_content ? wp_strip_all_tags( (string) $custom_content ) : wp_strip_all_tags( (string) get_the_excerpt() );
+							$display_text   = $custom_content ? wp_strip_all_tags( (string) $custom_content ) : wp_strip_all_tags( (string) get_the_content( null, false, get_the_ID() ) );
 							$display_text   = trim( preg_replace( '/\s+/', ' ', $display_text ) );
 
-							if ( function_exists( 'mb_strlen' ) && function_exists( 'mb_substr' ) ) {
-								if ( mb_strlen( $display_text ) > 150 ) {
-									$display_text = rtrim( mb_substr( $display_text, 0, 150 ) ) . '...';
-								}
-							} elseif ( strlen( $display_text ) > 150 ) {
-								$display_text = rtrim( substr( $display_text, 0, 150 ) ) . '...';
+							$video_url = '';
+							if ( is_array( $custom_video ) ) {
+								$video_url = isset( $custom_video['url'] ) ? $custom_video['url'] : '';
+							} elseif ( is_int( $custom_video ) || ctype_digit( (string) $custom_video ) ) {
+								$video_url = wp_get_attachment_url( (int) $custom_video );
+							} elseif ( is_string( $custom_video ) ) {
+								$video_url = $custom_video;
 							}
 
 							$image_url = '';
 							$image_alt = '';
 
-							if ( is_array( $custom_image ) ) {
-								$image_url = isset( $custom_image['url'] ) ? $custom_image['url'] : '';
-								$image_alt = isset( $custom_image['alt'] ) ? $custom_image['alt'] : '';
-							} elseif ( is_int( $custom_image ) || ctype_digit( (string) $custom_image ) ) {
-								$image_url = wp_get_attachment_image_url( (int) $custom_image, 'large' );
-								$image_alt = (string) get_post_meta( (int) $custom_image, '_wp_attachment_image_alt', true );
-							} elseif ( is_string( $custom_image ) ) {
-								$image_url = $custom_image;
-							}
+							if ( ! $video_url ) {
+								if ( is_array( $custom_image ) ) {
+									$image_url = isset( $custom_image['url'] ) ? $custom_image['url'] : '';
+									$image_alt = isset( $custom_image['alt'] ) ? $custom_image['alt'] : '';
+								} elseif ( is_int( $custom_image ) || ctype_digit( (string) $custom_image ) ) {
+									$image_url = wp_get_attachment_image_url( (int) $custom_image, 'large' );
+									$image_alt = (string) get_post_meta( (int) $custom_image, '_wp_attachment_image_alt', true );
+								} elseif ( is_string( $custom_image ) ) {
+									$image_url = $custom_image;
+								}
 
-							if ( ! $image_url && has_post_thumbnail() ) {
-								$image_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
-							}
+								if ( ! $image_url && has_post_thumbnail() ) {
+									$image_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+								}
 
-							if ( ! $image_alt ) {
-								$image_alt = $display_title;
+								if ( ! $image_alt ) {
+									$image_alt = $display_title;
+								}
 							}
 							?>
 							<article class="swiper-slide services-page-card">
 								<div class="services-page-card__media">
-									<?php if ( $image_url ) : ?>
+									<?php if ( $video_url ) : ?>
+										<video src="<?php echo esc_url( $video_url ); ?>" autoplay loop muted playsinline></video>
+									<?php elseif ( $image_url ) : ?>
 										<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>">
 									<?php endif; ?>
 								</div>

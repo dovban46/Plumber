@@ -1,6 +1,6 @@
 .footer {
 	background: #e0e3eb;
-	padding: 90px 16px 22px;
+	padding: 64px 16px 22px;
 	overflow-x: clip;
 }
 
@@ -91,7 +91,7 @@
 }
 
 .footer__menu-list li + li {
-	margin-top: 18px;
+	margin-top: 14px;
 }
 
 .footer__menu-list a {
@@ -122,7 +122,7 @@
 }
 
 .footer__bottom {
-	margin-top: 60px;
+	margin-top: 70px;
 	display: grid;
 	grid-template-columns: auto auto 1fr auto;
 	align-items: center;
@@ -183,7 +183,6 @@
 @media (max-width: 768px) {
 	.footer {
 		padding: 24px;
-		margin: 0 16px;
 	}
 
 	.footer__top {

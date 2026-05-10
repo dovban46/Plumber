@@ -224,6 +224,14 @@
 	transition: transform 0.25s ease;
 }
 
+.single-blog-other-card__media video {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+	transition: transform 0.25s ease;
+}
+
 .single-blog-other-card__media::after {
 	content: "";
 	position: absolute;
@@ -252,7 +260,12 @@
 }
 
 .single-blog-other-card__media:hover img,
+.single-blog-other-card__media:hover video,
 .single-blog-other-card__media:focus-visible img {
+	transform: scale(1.03);
+}
+
+.single-blog-other-card__media:focus-visible video {
 	transform: scale(1.03);
 }
 

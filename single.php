@@ -13,8 +13,18 @@ if ( have_posts() ) :
 
 		$post_id      = get_the_ID();
 		$post_title   = trim( (string) get_the_title() );
+		$hero_video   = function_exists( 'get_field' ) ? get_field( 'video', $post_id ) : '';
+		$hero_vid_url = '';
+		if ( is_array( $hero_video ) ) {
+			$hero_vid_url = isset( $hero_video['url'] ) ? $hero_video['url'] : '';
+		} elseif ( is_int( $hero_video ) || ctype_digit( (string) $hero_video ) ) {
+			$hero_vid_url = wp_get_attachment_url( (int) $hero_video );
+		} elseif ( is_string( $hero_video ) ) {
+			$hero_vid_url = trim( $hero_video );
+		}
+
 		$thumb_id     = get_post_thumbnail_id( $post_id );
-		$hero_img_url = $thumb_id ? get_the_post_thumbnail_url( $post_id, 'full' ) : '';
+		$hero_img_url = ( ! $hero_vid_url && $thumb_id ) ? get_the_post_thumbnail_url( $post_id, 'full' ) : '';
 		$hero_img_alt = $thumb_id ? (string) get_post_meta( $thumb_id, '_wp_attachment_image_alt', true ) : '';
 		if ( ! $hero_img_alt ) {
 			$hero_img_alt = $post_title;
@@ -60,7 +70,9 @@ if ( have_posts() ) :
 			<section class="single-blog-hero" aria-label="<?php esc_attr_e( 'Post hero', 'plumber' ); ?>">
 				<div class="single-blog-hero__container">
 					<div class="single-blog-hero__media">
-						<?php if ( $hero_img_url ) : ?>
+						<?php if ( $hero_vid_url ) : ?>
+							<video class="single-blog-hero__bg" src="<?php echo esc_url( $hero_vid_url ); ?>" autoplay loop muted playsinline></video>
+						<?php elseif ( $hero_img_url ) : ?>
 							<img class="single-blog-hero__bg" src="<?php echo esc_url( $hero_img_url ); ?>" alt="<?php echo esc_attr( $hero_img_alt ); ?>">
 						<?php endif; ?>
 						<h1 class="single-blog-hero__title"><?php echo esc_html( $post_title ); ?></h1>
@@ -95,11 +107,21 @@ if ( have_posts() ) :
 									<?php
 									$item_id      = (int) $item->ID;
 									$item_title   = trim( (string) get_the_title( $item_id ) );
+									$item_video   = function_exists( 'get_field' ) ? get_field( 'video', $item_id ) : '';
+									$item_vid_url = '';
+									if ( is_array( $item_video ) ) {
+										$item_vid_url = isset( $item_video['url'] ) ? $item_video['url'] : '';
+									} elseif ( is_int( $item_video ) || ctype_digit( (string) $item_video ) ) {
+										$item_vid_url = wp_get_attachment_url( (int) $item_video );
+									} elseif ( is_string( $item_video ) ) {
+										$item_vid_url = trim( $item_video );
+									}
+
 									$item_thumb   = get_post_thumbnail_id( $item_id );
 									$item_img_url = '';
 									$item_img_alt = '';
 
-									if ( $item_thumb ) {
+									if ( ! $item_vid_url && $item_thumb ) {
 										$item_mime    = (string) get_post_mime_type( $item_thumb );
 										$item_is_gif  = ( false !== strpos( strtolower( $item_mime ), 'gif' ) );
 										$item_size    = ( $item_is_gif && $item_id === $post_id ) ? 'full' : 'large';
@@ -114,7 +136,9 @@ if ( have_posts() ) :
 									<article class="swiper-slide single-blog-other-card">
 										<p class="single-blog-other-card__date"><?php echo esc_html( get_the_date( 'F j, Y', $item_id ) ); ?></p>
 										<a class="single-blog-other-card__media" href="<?php echo esc_url( get_permalink( $item_id ) ); ?>">
-											<?php if ( $item_img_url ) : ?>
+											<?php if ( $item_vid_url ) : ?>
+												<video src="<?php echo esc_url( $item_vid_url ); ?>" autoplay loop muted playsinline></video>
+											<?php elseif ( $item_img_url ) : ?>
 												<img src="<?php echo esc_url( $item_img_url ); ?>" alt="<?php echo esc_attr( $item_img_alt ); ?>" loading="lazy" decoding="async">
 											<?php endif; ?>
 											<h3 class="single-blog-other-card__title"><?php echo esc_html( $item_title ); ?></h3>

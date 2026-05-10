@@ -122,6 +122,16 @@
             </button>
 
             <div class="header-menu-drawer">
+                <div class="header-branding-mobile" aria-hidden="true">
+                    <a class="header-logo-link" href="<?php echo esc_url( home_url( '/' ) ); ?>" tabindex="-1">
+                        <?php if ( $logo_url ) : ?>
+                            <img class="header-logo" src="<?php echo esc_url( $logo_url ); ?>" alt="<?php echo esc_attr( $logo_alt ); ?>">
+                        <?php else : ?>
+                            <span class="header-logo-text"><?php bloginfo( 'name' ); ?></span>
+                        <?php endif; ?>
+                    </a>
+                </div>
+
                 <nav id="site-navigation" class="main-navigation" aria-label="<?php esc_attr_e( 'Primary menu', 'plumber' ); ?>">
                     <?php
                     $plumber_primary_nav_args = array(

@@ -425,38 +425,56 @@ document.addEventListener('DOMContentLoaded', () => {
 					? Array.from(li.children).find((c) => c instanceof HTMLElement && c.classList.contains('sub-menu')) || null
 					: null;
 
-				/* Встановлює --submenu-max-height на прямому sub-menu елемента li.
-				   Якщо forceExpand=true — ігнорує поточний стан і бере повний scrollHeight. */
-				const setSubmenuHeight = (li, forceExpand) => {
-					if (!isMobile() || !li) {
+			/* Зчитує повну висоту вмісту sub-menu через scrollHeight і записує
+			   в CSS-змінну --submenu-max-height. Викликається тільки для елемента
+			   що ще НЕ анімується (до classList.toggle), або у корекційному таймері
+			   ПІСЛЯ завершення переходу — тоді scrollHeight вже стабільний. */
+			const setSubmenuHeight = (li) => {
+				if (!isMobile() || !li) {
+					return;
+				}
+				const sub = getDirectSubmenu(li);
+				if (!sub) {
+					return;
+				}
+				const h = sub.scrollHeight;
+				sub.style.setProperty('--submenu-max-height', `${h}px`);
+			};
+
+				/* Додає delta до --submenu-max-height усіх предків li (не зачіпає
+				   самого li). Адитивний підхід: ніяких DOM-зчитувань під час
+				   анімації — це гарантує плавність переходів. */
+				const nudgeAncestors = (li, delta) => {
+					if (!isMobile() || !delta) {
 						return;
 					}
-					const sub = getDirectSubmenu(li);
-					if (!sub) {
-						return;
+					const parentList = li.parentElement;
+					let cur = parentList ? parentList.closest('li.menu-item-has-children') : null;
+					while (cur) {
+						const curSub = getDirectSubmenu(cur);
+						if (curSub) {
+							const current = parseFloat(curSub.style.getPropertyValue('--submenu-max-height') || '0');
+							curSub.style.setProperty(
+								'--submenu-max-height',
+								`${Math.max(0, Math.ceil(current + delta))}px`
+							);
+						}
+						const nextList = cur.parentElement;
+						cur = nextList ? nextList.closest('li.menu-item-has-children') : null;
 					}
-					/* Тимчасово знімаємо overflow clip щоб scrollHeight вернув реальну висоту */
-					const prevOverflow = sub.style.overflow;
-					if (forceExpand) {
-						sub.style.overflow = 'visible';
-					}
-					const h = sub.scrollHeight;
-					if (forceExpand) {
-						sub.style.overflow = prevOverflow;
-					}
-					sub.style.setProperty('--submenu-max-height', `${h}px`);
 				};
 
-				/* Оновлює висоти від поточного li до кореня (Services -> top) */
+				/* Коригує висоти після завершення всіх анімацій (≥ transition-duration).
+				   Безпечно зчитує scrollHeight, бо переходи вже закінчені. */
 				const propagateHeightsUp = (li) => {
 					if (!isMobile()) {
 						return;
 					}
 					let cur = li;
 					while (cur && cur.matches && cur.matches('li.menu-item-has-children')) {
-						setSubmenuHeight(cur, true);
-						const parentList = cur.parentElement;
-						cur = parentList ? parentList.closest('li.menu-item-has-children') : null;
+						setSubmenuHeight(cur);
+						const nextList = cur.parentElement;
+						cur = nextList ? nextList.closest('li.menu-item-has-children') : null;
 					}
 				};
 
@@ -472,11 +490,20 @@ document.addEventListener('DOMContentLoaded', () => {
 						parentList.classList.toggle('has-open-branch', hasOpenBranch);
 					};
 
-					/* Закриваємо сусідніх */
+					/* Закриваємо сусідніх + адитивно стискаємо предків */
 					if (parentList) {
 						Array.from(parentList.children).forEach((sibling) => {
 							if (sibling === parentLi || !sibling.matches('li.menu-item-has-children')) {
 								return;
+							}
+							if (isMobile() && sibling.classList.contains('is-open')) {
+								const sibSub = getDirectSubmenu(sibling);
+								const sibH = sibSub
+									? parseFloat(sibSub.style.getPropertyValue('--submenu-max-height') || '0')
+									: 0;
+								if (sibH) {
+									nudgeAncestors(sibling, -sibH);
+								}
 							}
 							sibling.classList.remove('is-open');
 							sibling.classList.remove('menu-item--hash-submenu-pinned');
@@ -487,9 +514,21 @@ document.addEventListener('DOMContentLoaded', () => {
 						});
 					}
 
-					/* Встановлюємо висоту ДО toggle (для відкриття) */
-					if (willOpen && isMobile()) {
-						setSubmenuHeight(parentLi, false);
+					/* Оновлюємо висоту ДО toggle — CSS побачить нові значення
+					   в тому ж batch і запустить обидва переходи одночасно. */
+					if (isMobile()) {
+						if (willOpen) {
+							setSubmenuHeight(parentLi);
+							const subH = parseFloat(
+								getDirectSubmenu(parentLi)?.style.getPropertyValue('--submenu-max-height') || '0'
+							);
+							nudgeAncestors(parentLi, subH);
+						} else {
+							const closingH = parseFloat(
+								getDirectSubmenu(parentLi)?.style.getPropertyValue('--submenu-max-height') || '0'
+							);
+							nudgeAncestors(parentLi, -closingH);
+						}
 					}
 
 					parentLi.classList.toggle('is-open', willOpen);
@@ -504,11 +543,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 					syncNestedPanelShape();
 
-					/* Після toggle — propagate висоти вгору */
+					/* Точна корекція ПІСЛЯ завершення анімації (0.38s + запас).
+					   scrollHeight на цей момент стабільний — анімацій немає. */
 					if (isMobile()) {
-						window.requestAnimationFrame(() => {
+						window.setTimeout(() => {
 							propagateHeightsUp(parentLi);
-						});
+						}, 420);
 					}
 				};
 
@@ -1829,6 +1869,29 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	const reviewForms = document.querySelectorAll('.review-page-form');
+	const reviewAlerts = document.querySelectorAll('[data-review-alert]');
+
+	if (reviewAlerts.length) {
+		reviewAlerts.forEach((alertEl) => {
+			const closeAlert = () => {
+				alertEl.remove();
+			};
+
+			const closeControls = alertEl.querySelectorAll('[data-review-alert-close]');
+			closeControls.forEach((control) => {
+				control.addEventListener('click', closeAlert);
+			});
+
+			window.setTimeout(closeAlert, 6000);
+
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape') {
+					closeAlert();
+				}
+			});
+		});
+	}
+
 	if (reviewForms.length) {
 		const fillReviewLocationByIp = (locationInput) => {
 			if (!locationInput || locationInput.value.trim() !== '') {

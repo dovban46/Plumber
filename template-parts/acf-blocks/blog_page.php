@@ -41,10 +41,20 @@ $posts_query = new WP_Query(
 						$title_raw = trim( (string) get_the_title() );
 						$title     = '' !== $title_raw ? $title_raw : __( 'Untitled post', 'plumber' );
 
+						$custom_video = function_exists( 'get_field' ) ? get_field( 'video', $post_id ) : '';
+						$video_url    = '';
+						if ( is_array( $custom_video ) ) {
+							$video_url = isset( $custom_video['url'] ) ? $custom_video['url'] : '';
+						} elseif ( is_int( $custom_video ) || ctype_digit( (string) $custom_video ) ) {
+							$video_url = wp_get_attachment_url( (int) $custom_video );
+						} elseif ( is_string( $custom_video ) ) {
+							$video_url = trim( $custom_video );
+						}
+
 						$thumb_id  = get_post_thumbnail_id( $post_id );
 						$image_url = '';
 						$image_alt = '';
-						if ( $thumb_id ) {
+						if ( ! $video_url && $thumb_id ) {
 							$mime_type = (string) get_post_mime_type( $thumb_id );
 							$is_gif    = ( false !== strpos( strtolower( $mime_type ), 'gif' ) );
 							$image_url = get_the_post_thumbnail_url( $post_id, $is_gif ? 'full' : 'large' );
@@ -64,7 +74,9 @@ $posts_query = new WP_Query(
 					?>
 					<article class="blog-page-card">
 							<div class="blog-page-card__media">
-								<?php if ( $image_url ) : ?>
+								<?php if ( $video_url ) : ?>
+									<video src="<?php echo esc_url( $video_url ); ?>" autoplay loop muted playsinline></video>
+								<?php elseif ( $image_url ) : ?>
 									<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" loading="lazy" decoding="async">
 								<?php endif; ?>
 							</div>

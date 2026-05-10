@@ -42,7 +42,7 @@ $form_status = array(
 
 if ( isset( $_GET['review_submitted'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['review_submitted'] ) ) ) {
 	$form_status['type']    = 'success';
-	$form_status['message'] = __( 'Thank you! Your review has been submitted.', 'plumber' );
+	$form_status['message'] = __( 'Thank you! Your review has been submitted and is awaiting admin approval.', 'plumber' );
 }
 
 if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['plumber_review_submit'] ) ) {
@@ -68,7 +68,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['plumber_review_subm
 					'post_type'    => 'review',
 					'post_title'   => $title,
 					'post_content' => $text,
-					'post_status'  => 'publish',
+					'post_status'  => 'draft',
 				),
 				true
 			);
@@ -85,7 +85,7 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['plumber_review_subm
 
 				// Post-Redirect-Get: avoid duplicate form submission prompt on refresh.
 				$redirect_url = add_query_arg( 'review_submitted', '1', get_permalink() );
-				wp_safe_redirect( $redirect_url . '#review-form' );
+				wp_safe_redirect( $redirect_url );
 				exit;
 			}
 		}
@@ -243,9 +243,18 @@ $star_icon_url = get_template_directory_uri() . '/assets/images/Star.svg';
 										<?php if ( '' !== trim( get_the_title() ) ) : ?>
 											<h3 class="review-page-card__title"><?php the_title(); ?></h3>
 										<?php endif; ?>
-										<?php if ( '' !== trim( get_the_content() ) ) : ?>
+										<?php
+										$review_text = (string) get_post_meta( get_the_ID(), 'text', true );
+										if ( '' === trim( $review_text ) && function_exists( 'get_field' ) ) {
+											$review_text = (string) get_field( 'text', get_the_ID() );
+										}
+										if ( '' === trim( $review_text ) ) {
+											$review_text = (string) get_the_content();
+										}
+										?>
+										<?php if ( '' !== trim( $review_text ) ) : ?>
 											<div class="review-page-card__text">
-												<?php echo wp_kses_post( wpautop( get_the_content() ) ); ?>
+												<?php echo wp_kses_post( wpautop( $review_text ) ); ?>
 											</div>
 										<?php endif; ?>
 									</div>
@@ -281,8 +290,12 @@ $star_icon_url = get_template_directory_uri() . '/assets/images/Star.svg';
 				<p class="review-page-form-wrap__subtitle"><?php esc_html_e( 'We’d love to hear from you!', 'plumber' ); ?></p>
 
 				<?php if ( $form_status['message'] ) : ?>
-					<div class="review-page-form__notice is-<?php echo esc_attr( $form_status['type'] ); ?>">
-						<?php echo esc_html( $form_status['message'] ); ?>
+					<div class="review-page-alert review-page-alert--<?php echo esc_attr( $form_status['type'] ); ?>" role="alertdialog" aria-modal="true" aria-live="assertive" data-review-alert>
+						<div class="review-page-alert__backdrop" data-review-alert-close></div>
+						<div class="review-page-alert__dialog">
+							<button type="button" class="review-page-alert__close" aria-label="<?php esc_attr_e( 'Close message', 'plumber' ); ?>" data-review-alert-close>×</button>
+							<p class="review-page-alert__message"><?php echo esc_html( $form_status['message'] ); ?></p>
+						</div>
 					</div>
 				<?php endif; ?>
 
