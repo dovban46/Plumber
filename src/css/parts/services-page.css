@@ -106,15 +106,14 @@
 }
 
 .services-page-card__content {
-	padding: 16px 0 0;
+	padding: 24px 0 0;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
 }
 
 .services-page-card__title {
-	margin: 0 0 16px;
-	min-height: 58px;
+	margin: 0 0 8px;
 	color: #f3f4f6;
 	font-size: 24px;
 	line-height: 1.2;
@@ -132,7 +131,7 @@
 	font-size: 14px;
 	line-height: 1.45;
 	font-weight: 400;
-	margin-bottom: 24px;
+	margin-bottom: 54px;
 }
 
 .services-page-card__button {
@@ -250,7 +249,7 @@
 	}
 
 	.services-page-section__cta-button{
-		padding: 18px 24px;
+		padding: 12px 11px;
 	}
 
 	.services-page-section__cta-button--filled .services-page-section__cta-text--desktop {
@@ -259,6 +258,10 @@
 
 	.services-page-section__cta-button--filled .services-page-section__cta-text--mobile {
 		display: inline;
+	}
+
+	.services-page-section__cta-button--outline{
+		padding: 12px 46px;
 	}
 }
 
