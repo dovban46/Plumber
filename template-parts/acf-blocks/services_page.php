@@ -9,6 +9,8 @@ $services_page_title   = isset( $services_page_section['services_page_title'] ) 
 $services_page_button1 = isset( $services_page_section['services_page_button1'] ) ? $services_page_section['services_page_button1'] : null;
 $services_page_button2 = isset( $services_page_section['services_page_button2'] ) ? $services_page_section['services_page_button2'] : null;
 
+$plumber_cta_phone_icon = get_template_directory_uri() . '/assets/images/phone2.svg';
+
 $services_query = new WP_Query(
 	array(
 		'post_type'      => 'our-services',
@@ -116,7 +118,10 @@ $services_query = new WP_Query(
 				<?php if ( is_array( $services_page_button1 ) && ! empty( $services_page_button1['url'] ) ) : ?>
 					<a class="services-page-section__cta-button services-page-section__cta-button--filled" href="<?php echo esc_url( $services_page_button1['url'] ); ?>" target="<?php echo esc_attr( ! empty( $services_page_button1['target'] ) ? $services_page_button1['target'] : '_self' ); ?>" <?php echo ( ! empty( $services_page_button1['target'] ) && '_blank' === $services_page_button1['target'] ) ? 'rel="noopener noreferrer"' : ''; ?>>
 						<span class="services-page-section__cta-text services-page-section__cta-text--desktop"><?php echo esc_html( ! empty( $services_page_button1['title'] ) ? $services_page_button1['title'] : __( 'Call us', 'plumber' ) ); ?></span>
-						<span class="services-page-section__cta-text services-page-section__cta-text--mobile"><?php esc_html_e( 'Call +13472162800', 'plumber' ); ?></span>
+						<span class="services-page-section__cta-text services-page-section__cta-text--mobile">
+							<img class="services-page-section__cta-phone-icon" src="<?php echo esc_url( $plumber_cta_phone_icon ); ?>" alt="" width="20" height="20" loading="lazy" decoding="async" aria-hidden="true">
+							<span class="services-page-section__cta-phone-number"><?php esc_html_e( '+13472162800', 'plumber' ); ?></span>
+						</span>
 					</a>
 				<?php endif; ?>
 

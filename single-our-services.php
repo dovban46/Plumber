@@ -16,6 +16,7 @@ if ( have_posts() ) :
 
 		$custom_title   = get_field( 'title' );
 		$custom_image   = get_field( 'image' );
+		$mobile_image   = get_field( 'mobile_image' );
 		$hero_image     = get_field( 'image_page_bg' );
 		$custom_content = get_field( 'content' );
 		$display_title  = $custom_title ? $custom_title : get_the_title();
@@ -42,6 +43,8 @@ if ( have_posts() ) :
 
 		$image_url = '';
 		$image_alt = '';
+		$mobile_image_url = '';
+		$mobile_image_alt = '';
 		$hero_image_url = '';
 		$hero_image_alt = '';
 
@@ -79,6 +82,20 @@ if ( have_posts() ) :
 
 		if ( ! $image_alt ) {
 			$image_alt = $display_title;
+		}
+
+		if ( is_array( $mobile_image ) ) {
+			$mobile_image_url = isset( $mobile_image['url'] ) ? $mobile_image['url'] : '';
+			$mobile_image_alt = isset( $mobile_image['alt'] ) ? $mobile_image['alt'] : '';
+		} elseif ( is_int( $mobile_image ) || ctype_digit( (string) $mobile_image ) ) {
+			$mobile_image_url = wp_get_attachment_image_url( (int) $mobile_image, 'large' );
+			$mobile_image_alt = (string) get_post_meta( (int) $mobile_image, '_wp_attachment_image_alt', true );
+		} elseif ( is_string( $mobile_image ) ) {
+			$mobile_image_url = $mobile_image;
+		}
+
+		if ( ! $mobile_image_alt ) {
+			$mobile_image_alt = $display_title;
 		}
 
 		$resolve_icon = static function ( $raw_icon ) use ( $display_title ) {
@@ -181,13 +198,27 @@ if ( have_posts() ) :
 				}
 			}
 		}
+		$hero_mobile_has_override = ( '' !== $mobile_image_url );
 		?>
 
-		<section class="page-hero-section single-our-services-hero" aria-label="<?php esc_attr_e( 'Service hero', 'plumber' ); ?>">
+		<section class="page-hero-section single-our-services-hero<?php echo $hero_mobile_has_override ? ' single-our-services-hero--has-mobile-image' : ''; ?>" aria-label="<?php esc_attr_e( 'Service hero', 'plumber' ); ?>">
 			<div class="page-hero-section__container">
 				<div class="page-hero-section__media">
 					<?php if ( $hero_image_url ) : ?>
-						<img class="page-hero-section__bg" src="<?php echo esc_url( $hero_image_url ); ?>" alt="<?php echo esc_attr( $hero_image_alt ); ?>">
+						<?php
+						$service_hero_mobile_src = $hero_image_url;
+						if ( $mobile_image_url ) {
+							$service_hero_mobile_src = $mobile_image_url;
+						}
+						?>
+						<?php if ( $service_hero_mobile_src !== $hero_image_url ) : ?>
+							<picture>
+								<source media="(max-width: 768px)" srcset="<?php echo esc_url( $service_hero_mobile_src ); ?>">
+								<img class="page-hero-section__bg" src="<?php echo esc_url( $hero_image_url ); ?>" alt="<?php echo esc_attr( $hero_image_alt ); ?>" decoding="async" fetchpriority="high">
+							</picture>
+						<?php else : ?>
+							<img class="page-hero-section__bg" src="<?php echo esc_url( $hero_image_url ); ?>" alt="<?php echo esc_attr( $hero_image_alt ); ?>" decoding="async" fetchpriority="high">
+						<?php endif; ?>
 					<?php endif; ?>
 					<div class="single-our-services-hero__content">
 						<h1 class="page-hero-section__title"><?php echo esc_html( $display_title ); ?></h1>

@@ -38,6 +38,7 @@ if ( have_posts() ) :
 		$default_contact_url  = $default_contact_page instanceof WP_Post ? get_permalink( $default_contact_page ) : home_url( '/contact/' );
 		$blog_page            = get_page_by_path( 'blog' );
 		$blog_page_url        = $blog_page instanceof WP_Post ? get_permalink( $blog_page ) : home_url( '/blog/' );
+		$plumber_cta_phone_icon = get_template_directory_uri() . '/assets/images/phone2.svg';
 
 		$cta_button_1 = ( is_array( $button_1 ) && ! empty( $button_1['url'] ) )
 			? $button_1
@@ -167,7 +168,10 @@ if ( have_posts() ) :
 					<div class="services-page-section__cta-buttons">
 						<a class="services-page-section__cta-button services-page-section__cta-button--filled" href="<?php echo esc_url( $cta_button_1['url'] ); ?>" target="<?php echo esc_attr( ! empty( $cta_button_1['target'] ) ? $cta_button_1['target'] : '_self' ); ?>" <?php echo ( ! empty( $cta_button_1['target'] ) && '_blank' === $cta_button_1['target'] ) ? 'rel="noopener noreferrer"' : ''; ?>>
 							<span class="services-page-section__cta-text services-page-section__cta-text--desktop"><?php echo esc_html( ! empty( $cta_button_1['title'] ) ? $cta_button_1['title'] : __( 'Call +1 (347) 216-2800', 'plumber' ) ); ?></span>
-							<span class="services-page-section__cta-text services-page-section__cta-text--mobile"><?php esc_html_e( 'Residential', 'plumber' ); ?></span>
+							<span class="services-page-section__cta-text services-page-section__cta-text--mobile">
+								<img class="services-page-section__cta-phone-icon" src="<?php echo esc_url( $plumber_cta_phone_icon ); ?>" alt="" width="20" height="20" loading="lazy" decoding="async" aria-hidden="true">
+								<span class="services-page-section__cta-phone-number"><?php esc_html_e( '+13472162800', 'plumber' ); ?></span>
+							</span>
 						</a>
 						<a class="services-page-section__cta-button services-page-section__cta-button--outline" href="<?php echo esc_url( $cta_button_2['url'] ); ?>" target="<?php echo esc_attr( ! empty( $cta_button_2['target'] ) ? $cta_button_2['target'] : '_self' ); ?>" <?php echo ( ! empty( $cta_button_2['target'] ) && '_blank' === $cta_button_2['target'] ) ? 'rel="noopener noreferrer"' : ''; ?>>
 							<?php echo esc_html( ! empty( $cta_button_2['title'] ) ? $cta_button_2['title'] : __( 'Book Now', 'plumber' ) ); ?>

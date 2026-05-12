@@ -28,6 +28,12 @@
 	justify-content: center;
 }
 
+.page-hero-section__media > picture {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
 .page-hero-section__bg {
 	position: absolute;
 	inset: 0;
@@ -72,6 +78,11 @@
 
 	.page-hero-section__bg{
 		object-position: calc(50% + 100px) center;
+	}
+
+	/* Якщо є окреме mobile_image для сервісу — зсуваємо фон правіше */
+	.single-our-services-hero--has-mobile-image .page-hero-section__bg{
+		object-position: right center;
 	}
 
 	.page-hero-section__title {

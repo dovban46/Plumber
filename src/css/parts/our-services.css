@@ -385,7 +385,7 @@
 .single-our-services-problems__item {
 	display: flex;
 	align-items: center;
-	height: 32px;
+	min-height: 32px;
 	gap: 12px;
 	opacity: 0;
 	transform: translateY(20px);

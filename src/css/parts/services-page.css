@@ -201,6 +201,20 @@
 
 .services-page-section__cta-text--mobile {
 	display: none;
+	align-items: center;
+	gap: 8px;
+}
+
+.services-page-section__cta-phone-icon {
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+	display: block;
+	object-fit: contain;
+}
+
+.services-page-section__cta-phone-number {
+	display: inline-block;
 }
 
 .services-page-section__cta-button--filled {
@@ -257,11 +271,17 @@
 	}
 
 	.services-page-section__cta-button--filled .services-page-section__cta-text--mobile {
-		display: inline;
+		display: inline-flex;
 	}
 
 	.services-page-section__cta-button--outline{
 		padding: 12px 46px;
+	}
+}
+
+@media (max-width: 395px) {
+	.services-page-section__cta-button--outline{
+		padding: 12px 24px;
 	}
 }
 
